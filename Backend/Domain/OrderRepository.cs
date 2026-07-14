@@ -139,6 +139,7 @@ public static class OrderDtoSamples
         get
         {
             var order = new Order(
+                new Guid("0f1c8a89-530b-4907-b4d8-17edd994988f"),
                 orderNumber: "ORD-20240709-2345",
                 description: "MacBook Pro 14 M3 Pro - Silver"
             );
@@ -157,6 +158,7 @@ public static class OrderDtoSamples
         get
         {
             var order = new Order(
+                new Guid("c663e0f1-c6fb-4462-9bee-28322bc2e88d"),
                 orderNumber: "ORD-20240708-3456",
                 description: "Samsung 49\" Odyssey G9 Gaming Monitor"
             );
@@ -173,6 +175,7 @@ public static class OrderDtoSamples
         get
         {
             var order = new Order(
+                new Guid("7730dcc9-58ed-42b5-847f-f8bbad947533"),
                 orderNumber: "ORD-20240707-4567",
                 description: "PS5 Digital Edition + DualSense Charging Station"
             );
@@ -185,6 +188,7 @@ public static class OrderDtoSamples
 
     // 5. Созданный сегодня
     public static Order SampleOrder5 => new Order(
+        new Guid("6b8c0d6d-55ef-48f6-b33c-9739e46f5192"),
         orderNumber: "ORD-20240709-5678",
         description: "NVIDIA RTX 4080 Super 16GB GDDR6X"
     );
@@ -195,6 +199,7 @@ public static class OrderDtoSamples
         get
         {
             var order = new Order(
+                new Guid("4cb3641f-a2b2-4615-a049-729a33db9305"),
                 orderNumber: "ORD-20240708-6789",
                 description: "Logitech MX Master 3S + MX Mechanical Keyboard"
             );
@@ -211,6 +216,7 @@ public static class OrderDtoSamples
         get
         {
             var order = new Order(
+                new Guid("d139712a-956c-4673-ae33-7271fd0fe5d0"),
                 orderNumber: "ORD-20240709-7890",
                 description: "Samsung Galaxy S24 Ultra 512GB - Titanium Violet"
             );
@@ -227,6 +233,7 @@ public static class OrderDtoSamples
         get
         {
             var order = new Order(
+                new Guid("9c3fb93f-5eec-4e77-86ef-ed131073debe"),
                 orderNumber: "ORD-20240706-8901",
                 description: "Bose QuietComfort Ultra Headphones"
             );
@@ -239,6 +246,7 @@ public static class OrderDtoSamples
 
     // 9. Недавно создан
     public static Order SampleOrder9 => new Order(
+        new Guid("be6fb9de-8921-4894-bd6e-b4227a1b8d73"),
         orderNumber: "ORD-20240709-9012",
         description: "DJI Mini 4 Pro Fly More Combo"
     );
@@ -249,6 +257,7 @@ public static class OrderDtoSamples
         get
         {
             var order = new Order(
+                new Guid("e027b487-5dc9-4f80-888c-30f0f3a4bad2"),
                 orderNumber: "ORD-20240615-0123",
                 description: "SteelSeries Arctis Nova Pro Wireless Headset"
             );
@@ -286,81 +295,6 @@ public static class OrderDtoSamples
         };
     }
 
-    // Альтернативный метод с использованием рефлексии для полной настройки
-    public static List<Order> GetAllOrdersWithReflection()
-    {
-        var orders = new List<Order>
-        {
-            new Order("ORD-20240709-1234", "iPhone 15 Pro Max 256GB - Space Black"),
-            new Order("ORD-20240709-2345", "MacBook Pro 14 M3 Pro - Silver"),
-            new Order("ORD-20240708-3456", "Samsung 49\" Odyssey G9 Gaming Monitor"),
-            new Order("ORD-20240707-4567", "PS5 Digital Edition + DualSense Charging Station"),
-            new Order("ORD-20240709-5678", "NVIDIA RTX 4080 Super 16GB GDDR6X"),
-            new Order("ORD-20240708-6789", "Logitech MX Master 3S + MX Mechanical Keyboard"),
-            new Order("ORD-20240709-7890", "Samsung Galaxy S24 Ultra 512GB - Titanium Violet"),
-            new Order("ORD-20240706-8901", "Bose QuietComfort Ultra Headphones"),
-            new Order("ORD-20240709-9012", "DJI Mini 4 Pro Fly More Combo"),
-            new Order("ORD-20240615-0123", "SteelSeries Arctis Nova Pro Wireless Headset"),
-        };
 
-        // Настройка статусов и дат через рефлексию
-        var statuses = new[]
-        {
-            OrderStatus.created,
-            OrderStatus.shipped,
-            OrderStatus.delivered,
-            OrderStatus.cancelled,
-            OrderStatus.created,
-            OrderStatus.shipped,
-            OrderStatus.delivered,
-            OrderStatus.cancelled,
-            OrderStatus.created,
-            OrderStatus.delivered
-        };
 
-        var createdAtDates = new[]
-        {
-            DateTime.UtcNow.AddHours(-2),
-            DateTime.UtcNow.AddDays(-3),
-            DateTime.UtcNow.AddDays(-10),
-            DateTime.UtcNow.AddDays(-5),
-            DateTime.UtcNow.AddMinutes(-30),
-            DateTime.UtcNow.AddDays(-2),
-            DateTime.UtcNow.AddDays(-7),
-            DateTime.UtcNow.AddDays(-4),
-            DateTime.UtcNow.AddMinutes(-5),
-            DateTime.UtcNow.AddDays(-25)
-        };
-
-        var updatedAtDates = new DateTime?[]
-        {
-            null,
-            DateTime.UtcNow.AddDays(-1),
-            DateTime.UtcNow.AddDays(-2),
-            DateTime.UtcNow.AddDays(-3),
-            null,
-            DateTime.UtcNow.AddDays(-1),
-            DateTime.UtcNow.AddHours(-3),
-            DateTime.UtcNow.AddDays(-2),
-            null,
-            DateTime.UtcNow.AddDays(-20)
-        };
-
-        for (int i = 0; i < orders.Count; i++)
-        {
-            var order = orders[i];
-
-            // Устанавливаем статус
-            if (statuses[i] != OrderStatus.created)
-            {
-                order.UpdateStatus(statuses[i]);
-            }
-
-            // Устанавливаем даты через рефлексию
-            SetPrivateField(order, "_createdAt", createdAtDates[i]);
-            SetPrivateField(order, "_updatedAt", updatedAtDates[i]);
-        }
-
-        return orders;
-    }
 }

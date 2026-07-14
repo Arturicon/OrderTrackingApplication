@@ -1,4 +1,3 @@
-// hooks/useCreateOrder.ts
 import { useState } from 'react';
 import { orderService } from '../services/orderService.js';
 import type { Order } from '../stores/orderStrore.js';

@@ -9,38 +9,22 @@ export function OrderDetailsPage() {
     const getCurrentOrderById = useOrderStore((state) => state.getCurrentOrderById);
     const [currentOrder, setCurrentOrder] = useState<Order | undefined>();
     const navigate = useNavigate();
-    const {onOrderStatusChanged} = useSignalR();
-    const getHandlersCount = signalRStore((state) => state.getHandlersCount); // ← из стора
+    // const {onOrderStatusChanged} = useSignalR();
+
 
     useEffect(()=>{
         if(id)
             setCurrentOrder(getCurrentOrderById(id)); 
     },[id])
 
-useEffect(()=>{
-        let unsubscribe = onOrderStatusChanged((data)=>{
+// useEffect(()=>{
+//         let unsubscribe = onOrderStatusChanged((data)=>{
 
-        })   
-        console.log(getHandlersCount());
-        return unsubscribe();
-    },[onOrderStatusChanged])
-
-    // useEffect(()=>{
-    // let connection = new signalR.HubConnectionBuilder()
-    // .withUrl("https://localhost:7125/orderHub")
-    // .build();
-
-    // connection.start()
-    //  .then(() => connection.invoke("subscribeToOrder", `${id}`));
-    
-    //  connection.on("OrderStatusChanged", (data)=>{
-    //     console.log('📦 Order status changed:', data);
-    //  });
-
-    // },[])
-
-    
-    
+//         })   
+//         console.log(getHandlersCount());
+//         return unsubscribe();
+//     },[onOrderStatusChanged])
+   
 
     if (!id) {
         return <div>Order ID is missing</div>;

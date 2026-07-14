@@ -3,7 +3,7 @@ import { useOrderStore } from '../stores/orderStrore.js';
 import { generateOrderNumber } from '../utils/helpers.js';
 import { useState } from 'react';
 import { useSignalR } from "../hooks/useSignalR";
-import { orderService } from '../services/orderService.js';
+import { notificationStore } from '../stores/notificationStore';
 import {useCreateOrder} from '../hooks/useCreateOrder.js';
 
 export function OrderForm() {
@@ -11,9 +11,9 @@ export function OrderForm() {
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState<string>('created');
     const [errors, setErrors] = useState<{ description?: string }>({});
-    const {subscribeToOrder} = useSignalR();
+    // const {subscribeToOrder} = useSignalR();
     const { createOrder, isLoading, error, reset } = useCreateOrder();
-
+    const addNotification = notificationStore((state) => state.addNotification);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -37,10 +37,25 @@ export function OrderForm() {
             addOrder(newOrder);
             setDescription('');
             setStatus('created');
-            subscribeToOrder(newOrder.id);
+            addNotification({
+                orderId: newOrder.id,
+                orderNumber: newOrder.orderNumber,
+                title: 'Заказ создан',
+                message: `Заказ #${newOrder.orderNumber} успешно создан`,
+                type: 'success',
+                link: `/order/${newOrder.id}`,
+            });
+            // subscribeToOrder(newOrder.id);
 
         } else {
             setErrors({ description: error || 'Ошибка создания' });
+            addNotification({
+                orderId: '',
+                orderNumber: '',
+                title: 'Ошибка',
+                message: `Не удалось создать заказ`,
+                type: 'error',
+            });
         }
     };
 

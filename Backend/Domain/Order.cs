@@ -14,11 +14,17 @@ public class Order
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    private Order() { }
-
     public Order(string orderNumber, string description)
     {
         Id = Guid.NewGuid();
+        OrderNumber = orderNumber;
+        Description = description;
+        Status = OrderStatus.created;
+        CreatedAt = DateTime.UtcNow;
+    }
+    public Order(Guid id, string orderNumber, string description)
+    {
+        Id = id;
         OrderNumber = orderNumber;
         Description = description;
         Status = OrderStatus.created;

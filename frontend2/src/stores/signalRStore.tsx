@@ -5,7 +5,7 @@ interface SignalRStore {
     handlers: ((data: OrderStatusUpdate) => void)[];
     addHandler: (handler: (data: OrderStatusUpdate) => void) => () => void;
     notify: (data: OrderStatusUpdate) => void;
-    getHandlersCount: () => number;
+
 }
 
 export const signalRStore = create<SignalRStore>((set, get) => ({
@@ -22,9 +22,7 @@ export const signalRStore = create<SignalRStore>((set, get) => ({
             }));
         };
     },
-    getHandlersCount: () => {
-        return get().handlers.length;
-    },
+
 
     notify: (data: OrderStatusUpdate) => {
         get().handlers.forEach(handler => {
