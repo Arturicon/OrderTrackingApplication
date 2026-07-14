@@ -53,10 +53,9 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
             // Declare exchange
             await _channel.ExchangeDeclareAsync(
                 exchange: _exchangeName,
-                type: ExchangeType.Topic,
+                type: ExchangeType.Direct,
                 durable: true,
-                autoDelete: false,
-                arguments: new Dictionary<string, object?> { { "x-queue-type", "quorum" } });
+                autoDelete: false);
 
             // Declare queue
             var queueName = configuration["RabbitMQ:QueueName"] ?? "order_queue";
@@ -86,6 +85,10 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
 
     public async Task PublishOrderStatusChangedEventAsync(Order order, OrderStatus oldStatus)
     {
+        if (_channel == null || _channel.IsOpen == false)
+        {
+            throw new InvalidOperationException("RabbitMQ channel is not open");
+        }
         try
         {
             var eventData = new

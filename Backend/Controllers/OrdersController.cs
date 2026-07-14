@@ -14,15 +14,15 @@ public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
     private readonly ILogger<OrdersController> _logger;
-    private readonly IHubContext<OrderHub> _hubContext;
 
-    public OrdersController(IOrderService orderService, ILogger<OrdersController> logger, IHubContext<OrderHub> hubContext)
+    public OrdersController(IOrderService orderService, ILogger<OrdersController> logger)
     {
         _orderService = orderService;
         _logger = logger;
-        _hubContext = hubContext;
     }
 
+
+    //todo delete
     [HttpPost("[action]")]
     public async Task<IActionResult> CreateTestOrder()
     {
@@ -31,13 +31,11 @@ public class OrdersController : ControllerBase
         return CreatedAtAction(nameof(GetOrder), new { id = orderDto.Id }, orderDto);
     }
     [HttpPut("[action]")]
-    public async Task<IActionResult> UpdateTestOrder()
+    public async Task<IActionResult> UpdateTestOrder([FromQuery] string number)
     {
         var orders = await _orderService.GetAllOrdersAsync();
-        foreach(var item in orders)
-        {
-            await _orderService.UpdateOrderStatusAsync(item.Id, OrderStatus.delivered);
-        }
+        var temp = orders.First(x => x.OrderNumber.Equals(number));
+        await _orderService.UpdateOrderStatusAsync(temp.Id, OrderStatus.delivered);
         return Ok();
     }
 
@@ -98,7 +96,7 @@ public class OrdersController : ControllerBase
     /// Создать новый заказ
     /// </summary>
     [HttpPost("[action]")]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createOrderDto)
+    public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
     {
         _logger.LogInformation("Creating new order with description: {Description}", createOrderDto.Description);
 
@@ -107,7 +105,7 @@ public class OrdersController : ControllerBase
             var createdOrder = await _orderService.CreateOrderAsync(createOrderDto.Description);
             var orderDto = OrderDto.FromOrder(createdOrder);
 
-            return CreatedAtAction(nameof(GetOrder), new { id = orderDto.Id }, orderDto);
+            return Ok(orderDto);
         }
         catch (ArgumentException ex)
         {

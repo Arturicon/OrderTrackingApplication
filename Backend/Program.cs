@@ -29,8 +29,7 @@ builder.Services.AddHostedService<RabbitMQHostedService>();
 // Logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-//builder.Logging.AddFile("logs/order-tracking-{Date}.log");
-builder.Services.AddSignalR();
+
 // CORS
 builder.Services.AddCors(opts =>
 {
@@ -55,12 +54,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
-// Маршрутизация SignalR с ограничением транспорта
-app.MapHub<OrderHub>("/orderHub", options =>
-{
-    // Разрешаем только WebSocket и Server-Sent Events
-    options.Transports = HttpTransportType.WebSockets | HttpTransportType.ServerSentEvents;
-});
 
 
 // Apply migrations
