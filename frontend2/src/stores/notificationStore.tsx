@@ -15,7 +15,7 @@ export interface Notification {
 }
 
 interface NotificationStore {
-    notifications: Notification[];
+    notifications: Notification[]; //todo должны храниться где-то на сервере?
     unreadCount: number;
     
     addNotification: (notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>) => void;

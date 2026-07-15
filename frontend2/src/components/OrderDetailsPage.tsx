@@ -3,13 +3,14 @@ import {useOrderStore, type Order} from '../stores/orderStrore'
 import { Link, useParams, useNavigate } from 'react-router';
 import { useSignalR } from "../hooks/useSignalR";
 import { signalRStore } from '../stores/signalRStore';
+import { Button } from 'react-bootstrap';
 
 export function OrderDetailsPage() {
     const { id } = useParams<string>();
     const getCurrentOrderById = useOrderStore((state) => state.getCurrentOrderById);
     const [currentOrder, setCurrentOrder] = useState<Order | undefined>();
     const navigate = useNavigate();
-    // const {onOrderStatusChanged} = useSignalR();
+    // const {onOrderStatusChanged, subscribeToOrder, unsubscribeFromOrder, updateOrderStatus} = useSignalR();
 
 
     useEffect(()=>{
@@ -19,12 +20,12 @@ export function OrderDetailsPage() {
 
 // useEffect(()=>{
 //         let unsubscribe = onOrderStatusChanged((data)=>{
-
+//             updateOrderStatus(data.orderId, data.newStatus);
 //         })   
-//         console.log(getHandlersCount());
-//         return unsubscribe();
+//         return unsubscribe;
 //     },[onOrderStatusChanged])
    
+
 
     if (!id) {
         return <div>Order ID is missing</div>;
@@ -37,6 +38,8 @@ export function OrderDetailsPage() {
     <>
      <span>Number: {currentOrder.orderNumber}</span>
      <span>Status: {currentOrder.status}</span>
+     {/* <Button onClick={()=>subscribeToOrder(id)}>Подписаться на уведомления</Button>
+     <Button onClick={()=>unsubscribeFromOrder(id)}>Отписаться от уведомлений</Button> */}
     </>
   )
 }

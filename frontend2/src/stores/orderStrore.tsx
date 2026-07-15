@@ -23,14 +23,23 @@ interface OrderStore {
     addOrder: (order: Order) => void;
     fetchOrders: () => Promise<void>;
     getCurrentOrderById: (id: string) => Order | undefined;
+    updateOrderStatus: (orderId: string, newStatus: string )=> void;
 }
 
-// ✅ Правильный persist
+
 export const useOrderStore = create<OrderStore>()(
     persist(
         (set, get) => ({
             orders: [],
-            
+            updateOrderStatus: (orderId: string, newStatus: string) => {
+                set((state) => ({
+                    orders: state.orders.map(order => 
+                        order.id === orderId 
+                            ? { ...order, status: newStatus }
+                            : order
+                    )
+                }));
+            },
             addOrder: (order) => set((state) => ({ 
                 orders: [order, ...state.orders] 
             })),

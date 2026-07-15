@@ -11,7 +11,7 @@ export function OrderForm() {
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState<string>('created');
     const [errors, setErrors] = useState<{ description?: string }>({});
-    // const {subscribeToOrder} = useSignalR();
+    const {subscribeToOrder} = useSignalR();
     const { createOrder, isLoading, error, reset } = useCreateOrder();
     const addNotification = notificationStore((state) => state.addNotification);
     const handleSubmit = async (e: React.FormEvent) => {

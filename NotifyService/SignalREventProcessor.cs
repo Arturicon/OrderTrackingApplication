@@ -33,10 +33,9 @@ public class SignalREventProcessor : IEventProcessor
     {
         try
         {
-            // ✅ Отправляем уведомление в группу заказа через IHubContext
             await _hubContext.Clients
-                .All
-                //.Group($"order_{eventData.OrderId}")  // ← Группа для конкретного заказа
+                //.All
+                .Group($"order_{eventData.OrderId}")  // ← Группа для конкретного заказа
                 .SendAsync(
                     "OrderStatusChanged",             // ← Имя метода на клиенте
                     new
