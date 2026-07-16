@@ -1,49 +1,61 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { OrderList } from './components/OrderList';
+import { Container } from 'react-bootstrap';
+import { useOrderStore } from './stores/orderStrore';
+import { Header } from './components/layout/Header';
 import { OrderForm } from './components/OrderForm';
+import { OrderList } from './components/OrderList';
 import { OrderDetailsPage } from './components/OrderDetailsPage';
-import { SignalRStatus } from './components/SignalRStatus';
-import { useOrderStore } from './store/orderStore';
-import { useSignalR } from './hooks/useSignalR';
-import { HubConnectionBuilder, HubConnection} from "@microsoft/signalr";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useSignalR } from "./hooks/useSignalR";
+import { notificationStore } from './stores/notificationStore';
+
 
 function App() {
-    const fetchOrders = useOrderStore((state) => state.fetchAllOrders);
-    const { isConnected, ping } = useSignalR();
-
+    const fetchOrders = useOrderStore((state) => state.fetchOrders);
+    const orders = useOrderStore((state) => state.orders);
+    const {onOrderStatusChanged} = useSignalR();
+    const addNotification = notificationStore((state) => state.addNotification); 
     useEffect(() => {
         fetchOrders();
     }, []);
 
-    // Пинг для проверки соединения
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (isConnected) {
-                ping().catch(console.error);
-            }
-        }, 30000); // Каждые 30 секунд
+    useEffect(()=>{
+      console.log('🔄 Подписка на уведомления');
+        let unsubscribe = onOrderStatusChanged((data)=>{
+          console.log('📨 Получено уведомление:', data);
+            addNotification({
+                orderId: data.orderId,
+                orderNumber: data.orderNumber,
+                title: 'Заказ создан',
+                message: `Заказ #${data.orderNumber} изменил статус с ${data.oldStatus} на ${data.newStatus}`,
+                type: 'success',
+                link: `/order/${data.orderId}`,
+            });
+        })   
 
-        return () => clearInterval(interval);
-    }, [isConnected, ping]);
+        return ()=>{
+          console.log('🗑️ Отписка от уведомлений');
+          unsubscribe();
+        }
+    },[onOrderStatusChanged, addNotification])
+
 
     return (
-        <div className="container py-4" style={{ maxWidth: '1200px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 className="display-6 fw-bold">📦 Управление заказами</h1>
-                {/* <SignalRStatus /> */}
-            </div>
-
-            <Routes>
-                <Route path="/" element={
-                    <>
-                        <OrderForm />
-                        <OrderList />
-                    </>
-                } />
-                <Route path="/order/:id" element={<OrderDetailsPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+        <div className="min-vh-100 bg-light">
+            <Header />
+            <Container className="py-4">
+                <Routes>
+                    <Route path="/" element={
+                        <>
+                            <OrderForm />
+                            <OrderList />
+                        </>
+                    } />
+                    <Route path="/order/:id" element={<OrderDetailsPage />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </Container>
         </div>
     );
 }

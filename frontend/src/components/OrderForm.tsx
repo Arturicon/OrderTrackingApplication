@@ -1,15 +1,20 @@
-import type { OrderStatus, Order } from '../types/order.js';
-import { useOrderStore } from '../store/orderStore';
+import type { Order } from '../stores/orderStrore.js';
+import { useOrderStore } from '../stores/orderStrore.js';
 import { generateOrderNumber } from '../utils/helpers.js';
 import { useState } from 'react';
+import { useSignalR } from "../hooks/useSignalR";
+import { notificationStore } from '../stores/notificationStore';
+import {useCreateOrder} from '../hooks/useCreateOrder.js';
 
 export function OrderForm() {
     const addOrder = useOrderStore((state) => state.addOrder);
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState<OrderStatus>('created');
+    const [status, setStatus] = useState<string>('created');
     const [errors, setErrors] = useState<{ description?: string }>({});
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const {subscribeToOrder} = useSignalR();
+    const { createOrder, isLoading, error, reset } = useCreateOrder();
+    const addNotification = notificationStore((state) => state.addNotification);
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const newErrors: { description?: string } = {};
@@ -23,21 +28,35 @@ export function OrderForm() {
             setErrors(newErrors);
             return;
         }
-
-        const now = new Date().toISOString();
-        const newOrder: Order = {
-            id: crypto.randomUUID(),
-            orderNumber: generateOrderNumber(),
-            description: description.trim(),
-            status,
-            createdAt: now,
-            updatedAt: now,
-        };
-
-        addOrder(newOrder);
-        setDescription('');
-        setStatus('created');
         setErrors({});
+        reset();
+
+        const newOrder = await createOrder(description.trim());
+        
+        if (newOrder) {
+            addOrder(newOrder);
+            setDescription('');
+            setStatus('created');
+            addNotification({
+                orderId: newOrder.id,
+                orderNumber: newOrder.orderNumber,
+                title: 'Заказ создан',
+                message: `Заказ #${newOrder.orderNumber} успешно создан`,
+                type: 'success',
+                link: `/order/${newOrder.id}`,
+            });
+            subscribeToOrder(newOrder.id);
+
+        } else {
+            setErrors({ description: error || 'Ошибка создания' });
+            addNotification({
+                orderId: '',
+                orderNumber: '',
+                title: 'Ошибка',
+                message: `Не удалось создать заказ`,
+                type: 'error',
+            });
+        }
     };
 
     return (
@@ -76,7 +95,7 @@ export function OrderForm() {
                                 id="orderStatus"
                                 className="form-select"
                                 value={status}
-                                onChange={(e) => setStatus(e.target.value as OrderStatus)}
+                                onChange={(e) => setStatus(e.target.value as string)}
                             >
                                 <option value="created">Создан</option>
                                 <option value="shipped">Отправлен</option>
@@ -86,7 +105,7 @@ export function OrderForm() {
                         </div>
 
                         <div className="col-md-3">
-                            <button type="submit" className="btn btn-primary w-100">
+                            <button type="submit" className="btn btn-primary w-100" disabled={isLoading}> 
                                 Создать
                             </button>
                         </div>
