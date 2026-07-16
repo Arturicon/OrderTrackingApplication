@@ -45,7 +45,7 @@ export function OrderForm() {
                 type: 'success',
                 link: `/order/${newOrder.id}`,
             });
-            // subscribeToOrder(newOrder.id);
+            subscribeToOrder(newOrder.id);
 
         } else {
             setErrors({ description: error || 'Ошибка создания' });

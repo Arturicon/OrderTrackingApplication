@@ -14,7 +14,7 @@ import { notificationStore } from './stores/notificationStore';
 function App() {
     const fetchOrders = useOrderStore((state) => state.fetchOrders);
     const orders = useOrderStore((state) => state.orders);
-    const {onOrderStatusChanged, subscribeToOrder, isConnected} = useSignalR();
+    const {onOrderStatusChanged} = useSignalR();
     const addNotification = notificationStore((state) => state.addNotification); 
     useEffect(() => {
         fetchOrders();
@@ -41,10 +41,6 @@ function App() {
     },[onOrderStatusChanged, addNotification])
 
 
-    useEffect(()=>{
-      if(isConnected)
-        subscribeToOrder(orders[0].id)
-    },[isConnected])
     return (
         <div className="min-vh-100 bg-light">
             <Header />
