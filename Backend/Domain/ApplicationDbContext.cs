@@ -12,10 +12,11 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Order> Orders { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
+        modelBuilder.HasDefaultSchema("mydatabase");
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(e => e.Id);

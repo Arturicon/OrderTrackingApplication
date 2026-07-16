@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Button, Card, Badge, Container, Row, Col, Stack } from 'react-bootstrap';
 import { ArrowLeft, Bell, BellSlash, Clock, Calendar, Hash, FileText, Tag } from 'react-bootstrap-icons';
-import { useOrderStore, type Order } from '../stores/orderStrore';
+import { useOrderStore} from '../stores/orderStrore';
 import { useSignalR } from "../hooks/useSignalR";
 
 export function OrderDetailsPage() {

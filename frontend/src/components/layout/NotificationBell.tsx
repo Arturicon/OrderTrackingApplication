@@ -1,6 +1,6 @@
 // components/Layout/NotificationBell.tsx
-import { useState, useRef, useEffect } from 'react';
-import { Button, Badge, Overlay } from 'react-bootstrap';
+import { useState, useRef } from 'react';
+import { Button, Badge } from 'react-bootstrap';
 import { notificationStore } from '../../stores/notificationStore';
 import { NotificationPopup } from '../notification/NotificationPopup';
 

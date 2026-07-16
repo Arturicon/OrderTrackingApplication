@@ -1,5 +1,5 @@
 // hooks/useSignalR.ts
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import type { OrderStatusUpdate } from '../stores/orderStrore';
 import { signalRStore } from '../stores/signalRStore';
@@ -21,7 +21,7 @@ let isReconnectHandlerRegistered = false;
 export function useSignalR(): UseSignalRResult {
     const addHandler = signalRStore((state) => state.addHandler);
     const notify = signalRStore((state) => state.notify);
-    const { subscribedOrderIds, addSubscription, removeSubscription } = subscriptionStore();
+    const { addSubscription, removeSubscription } = subscriptionStore();
     const connectionRef = useRef<signalR.HubConnection | null>(null);
     const hookId = useRef(`hook_${Date.now()}_${Math.random()}`);
 

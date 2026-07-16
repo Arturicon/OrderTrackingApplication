@@ -16,14 +16,6 @@ export function NotificationItem({ notification }: NotificationItemProps) {
         }
     };
 
-    const getTypeVariant = (type: string): string => {
-        switch (type) {
-            case 'success': return 'success';
-            case 'warning': return 'warning';
-            case 'error': return 'danger';
-            default: return 'info';
-        }
-    };
 
     const getTypeIcon = (type: string): string => {
         switch (type) {

@@ -1,6 +1,4 @@
-import type { Order } from '../stores/orderStrore.js';
 import { useOrderStore } from '../stores/orderStrore.js';
-import { generateOrderNumber } from '../utils/helpers.js';
 import { useState } from 'react';
 import { useSignalR } from "../hooks/useSignalR";
 import { notificationStore } from '../stores/notificationStore';

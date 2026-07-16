@@ -1,4 +1,3 @@
-// stores/subscriptionStore.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -11,7 +10,7 @@ interface SubscriptionStore {
 
 export const subscriptionStore = create<SubscriptionStore>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             subscribedOrderIds: [],
             
             addSubscription: (orderId: string) => {

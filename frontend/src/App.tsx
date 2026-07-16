@@ -13,7 +13,6 @@ import { notificationStore } from './stores/notificationStore';
 
 function App() {
     const fetchOrders = useOrderStore((state) => state.fetchOrders);
-    const orders = useOrderStore((state) => state.orders);
     const {onOrderStatusChanged} = useSignalR();
     const addNotification = notificationStore((state) => state.addNotification); 
     useEffect(() => {
