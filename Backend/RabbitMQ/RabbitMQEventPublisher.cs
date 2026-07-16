@@ -1,4 +1,5 @@
 ﻿using Backend.Domain.Entities;
+using Backend.Domain.Interfeces;
 using Microsoft.EntityFrameworkCore.Metadata;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;

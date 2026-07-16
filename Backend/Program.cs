@@ -1,5 +1,6 @@
 using Backend.Domain;
 using Backend.Domain.Entities;
+using Backend.Domain.Interfeces;
 using Backend.RabbitMQ;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +19,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repositories
-//builder.Services.AddScoped<IOrderRepository, OrderRepository>(); //todo
-builder.Services.AddScoped<IOrderRepository, OrderTestRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>(); //todo
+//builder.Services.AddScoped<IOrderRepository, OrderTestRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 // RabbitMQ
@@ -56,7 +57,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 
-// Apply migrations
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
