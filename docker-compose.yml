@@ -53,6 +53,20 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+
+  notifyservice:
+    build: ./NotifyService
+    container_name: notification_container
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    ports:
+      - "5010:8080"
+    networks:
+      - app-network
+    restart: unless-stopped
     
 volumes:
   postgres_data:
