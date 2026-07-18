@@ -1,12 +1,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Копируем package.json из папки frontend
-COPY ["frontend/package.json", "frontend/package-lock.json*", "./"]
+# Копируем package.json и package-lock.json из папки frontend
+COPY ["package.json", "package-lock.json*", "./"]
 RUN npm install
 
 # Копируем всё из папки frontend
-COPY frontend/ .
+COPY . .
 RUN npm run build
 
 FROM nginx:alpine

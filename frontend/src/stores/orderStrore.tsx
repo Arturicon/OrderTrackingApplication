@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import {API_CONFIG} from '../utils/helpers'
 
 export interface Order {
     id: string;
@@ -45,9 +46,8 @@ export const useOrderStore = create<OrderStore>()(
             })),
             
             fetchOrders: async () => {
-                const host = "https://localhost:7099";
                 try {
-                    const response = await fetch(`${host}/api/Orders/GetAllOrders`);
+                    const response = await fetch(`${API_CONFIG.baseUrl}/${API_CONFIG.endpoints.allOrders}`);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }

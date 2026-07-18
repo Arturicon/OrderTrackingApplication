@@ -42,7 +42,8 @@ services:
     build: ./Backend
     container_name: backend_container
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production   
+      - ASPNETCORE_ENVIRONMENT=Production  
+      - CORS_ORIGINS=http://localhost:5171;http://frontend_container:80 
     ports:
       - "5000:8080"
     depends_on:
@@ -67,6 +68,17 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_container
+    depends_on:
+      - backend
+      - notifyservice
+    ports:
+      - "3000:80"
+    networks:
+      - app-network
     
 volumes:
   postgres_data:
