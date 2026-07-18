@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # База данных 
   postgres:
@@ -44,8 +42,8 @@ services:
   # Main API (ASP.NET Core с БД и логикой)
   backend:
     build:
-      context: ./Backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Backend/Dockerfile
     container_name: backend
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
@@ -69,8 +67,8 @@ services:
   # Notification Service 
   notifyservice:
     build:
-      context: ./NotifyService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: NotifyService/Dockerfile
     container_name: notification_service
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
@@ -94,8 +92,8 @@ services:
   # Frontend
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: frontend_app
     depends_on:
       - backend

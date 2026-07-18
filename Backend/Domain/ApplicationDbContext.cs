@@ -16,7 +16,7 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.HasDefaultSchema("mydatabase");
+        modelBuilder.HasDefaultSchema("orderDb");
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(e => e.Id);

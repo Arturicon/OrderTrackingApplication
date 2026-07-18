@@ -1,22 +1,15 @@
-# Этап сборки
 FROM node:20-alpine AS build
-
 WORKDIR /app
 
-# Копируем package.json и устанавливаем все зависимости
-COPY package*.json ./
-RUN npm ci
+# Копируем package.json из папки frontend
+COPY ["frontend/package.json", "frontend/package-lock.json*", "./"]
+RUN npm install
 
-# Копируем исходники
-COPY . .
-
-# Собираем проект
+# Копируем всё из папки frontend
+COPY frontend/ .
 RUN npm run build
 
-# Production этап
 FROM nginx:alpine
-
-# Копируем собранные файлы
-COPY --from=build /app/dist  /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
