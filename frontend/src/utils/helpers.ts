@@ -17,8 +17,8 @@ export const formatDate = (dateStr: string): string => {
 
 export const API_CONFIG = {
     // Получаем URL из переменной окружения или используем дефолтное значение
-    backendUrl: import.meta.env.BACKEND_URL || 'https://localhost:7099',
-    notifyUrl: import.meta.env.NOTIFY_URL || "https://localhost:7125",
+    backendUrl: import.meta.env.VITE_BACKEND_URL || 'https://localhost:7099',
+    notifyUrl: import.meta.env.VITE_NOTIFY_URL || "https://localhost:7125",
     endpoints: {
         allOrders: 'api/Orders/GetAllOrders',
         createOrder: 'api/Orders/CreateOrder',

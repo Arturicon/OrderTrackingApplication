@@ -3,9 +3,9 @@
 
 namespace Backend.Domain.Entities;
 
-public class ApplicationDbContext : DbContext
+public class OrderDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    public OrderDbContext(DbContextOptions<OrderDbContext> options)
         : base(options)
     {
     }
@@ -16,7 +16,11 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.HasDefaultSchema("orderDb");
+        modelBuilder.HasDefaultSchema("orders");
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.ToTable("orderDb", "orders"); // Имя таблицы + схема
+        });
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(e => e.Id);

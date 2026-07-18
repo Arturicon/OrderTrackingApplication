@@ -1,4 +1,13 @@
 FROM node:20-alpine AS build
+
+# Принимаем аргументы сборки
+ARG VITE_BACKEND_URL
+ARG VITE_NOTIFY_URL
+
+# Делаем их доступными во время сборки
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+ENV VITE_NOTIFY_URL=$VITE_NOTIFY_URL
+
 WORKDIR /app
 
 # Копируем package.json и package-lock.json из папки frontend

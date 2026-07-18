@@ -6,10 +6,10 @@ namespace Backend.Domain.Entities;
 
 public class OrderRepository : IOrderRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly OrderDbContext _context;
     private readonly ILogger<OrderRepository> _logger;
 
-    public OrderRepository(ApplicationDbContext context, ILogger<OrderRepository> logger)
+    public OrderRepository(OrderDbContext context, ILogger<OrderRepository> logger)
     {
         _context = context;
         _logger = logger;

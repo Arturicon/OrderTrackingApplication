@@ -13,10 +13,13 @@ builder.Services.AddSingleton<IEventProcessor, SignalREventProcessor>();
 builder.Services.AddSignalR();
 
 // CORS
+var corsOrigins = Environment.GetEnvironmentVariable("CORS_ORIGINS")
+                          ?? "http://localhost:5171";
+var origins = corsOrigins.Split(';');
 builder.Services.AddCors(opts =>
 {
     opts.AddDefaultPolicy(pb => pb
-    .WithOrigins("http://localhost:5171")
+    .WithOrigins(corsOrigins)
     //.AllowAnyOrigin()
     .AllowCredentials()
     .AllowAnyHeader()

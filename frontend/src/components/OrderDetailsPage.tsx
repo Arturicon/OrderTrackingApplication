@@ -6,19 +6,18 @@ import { ArrowLeft, Bell, BellSlash, Clock, Calendar, Hash, FileText, Tag } from
 import { useOrderStore} from '../stores/orderStrore';
 import { useSignalR } from "../hooks/useSignalR";
 
+//todo добавить показатель того что мы подписаны
+
 export function OrderDetailsPage() {
     const { id } = useParams<string>();
     const navigate = useNavigate();
     
-    // ✅ Получаем orders из стора
     const orders = useOrderStore((state) => state.orders);
     const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
     const { onOrderStatusChanged, subscribeToOrder, unsubscribeFromOrder} = useSignalR();
-
-    // ✅ Вычисляем currentOrder на основе orders из стора
     const currentOrder = orders.find(order => order.id === id);
 
-    // ✅ Подписка на уведомления
+    // Подписка на уведомления
     useEffect(() => {
         const unsubscribe = onOrderStatusChanged((data) => {
             console.log('📨 Получено обновление статуса:', data);

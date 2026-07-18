@@ -4,6 +4,8 @@ import * as signalR from '@microsoft/signalr';
 import type { OrderStatusUpdate } from '../stores/orderStrore';
 import { signalRStore } from '../stores/signalRStore';
 import { subscriptionStore } from '../stores/subscriptionStore';
+import {API_CONFIG} from '../utils/helpers';
+
 
 interface UseSignalRResult {
     subscribeToOrder: (orderId: string) => Promise<void>;
@@ -93,7 +95,7 @@ export function useSignalR(): UseSignalRResult {
         // ✅ СОЗДАЁМ НОВОЕ ПОДКЛЮЧЕНИЕ
         console.log(`🔌 [${hookId.current}] Создаём НОВОЕ подключение SignalR`);
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7125/orderHub", {
+            .withUrl(`${API_CONFIG.notifyUrl}/${API_CONFIG.endpoints.orderHub}`, {
                 transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents,
             })
             .withAutomaticReconnect({

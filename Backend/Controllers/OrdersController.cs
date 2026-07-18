@@ -28,12 +28,25 @@ public class OrdersController : ControllerBase
     [HttpGet("[action]")]
     public async Task<IActionResult> GetAllOrders([FromQuery] OrderStatus? status)
     {
-        _logger.LogInformation("Getting all orders with status filter: {Status}", status);
+        try
+        {
+            _logger.LogInformation("Getting all orders with status filter: {Status}", status);
 
-        var orders = await _orderService.GetAllOrdersAsync(status);
-        var orderDtos = orders.Select(OrderDto.FromOrder);
+            var orders = await _orderService.GetAllOrdersAsync(status);
+            var orderDtos = orders.Select(OrderDto.FromOrder);
 
-        return Ok(orderDtos);
+            return Ok(orderDtos);
+        }
+        catch(Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                Error = ex.Message,
+                StackTrace = ex.StackTrace,
+                InnerError = ex.InnerException?.Message
+            });
+        }
+
     }
 
     /// <summary>

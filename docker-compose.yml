@@ -43,7 +43,7 @@ services:
     container_name: backend_container
     environment:
       - ASPNETCORE_ENVIRONMENT=Production  
-      - CORS_ORIGINS=http://localhost:5171;http://frontend:80 
+      - CORS_ORIGINS=http://localhost:3000 
     ports:
       - "5000:8080"
     depends_on:
@@ -58,23 +58,27 @@ services:
   notifyservice:
     build: ./NotifyService
     container_name: notification_container
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - CORS_ORIGINS=http://localhost:3000
     depends_on:
       rabbitmq:
         condition: service_healthy
       backend:
         condition: service_started
     ports:
-      - "5010:8070"
+      - "5010:8080"
     networks:
       - app-network
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_BACKEND_URL=http://localhost:5000 
+        - VITE_NOTIFY_URL=http://localhost:5010
     container_name: frontend_container
-    environment:
-      - BACKEND_URL=http://backend:8080
-      - NOTIFY_URL=http://notifyservice:8070
     depends_on:
       - backend
       - notifyservice

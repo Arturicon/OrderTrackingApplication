@@ -31,7 +31,7 @@ export const subscriptionStore = create<SubscriptionStore>()(
         }),
         {
             name: 'subscription-storage',
-            storage: createJSONStorage(() => sessionStorage), // ✅ sessionStorage - живёт только в текущей вкладке
+            storage: createJSONStorage(() => sessionStorage), 
         }
     )
 );

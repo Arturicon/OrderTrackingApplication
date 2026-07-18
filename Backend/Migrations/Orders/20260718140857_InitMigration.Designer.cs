@@ -9,17 +9,18 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Backend.Migrations
+namespace Backend.Migrations.Orders
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260716093915_DbInit")]
-    partial class DbInit
+    [DbContext(typeof(OrderDbContext))]
+    [Migration("20260718140857_InitMigration")]
+    partial class InitMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("orders")
                 .HasAnnotation("ProductVersion", "8.0.28")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -55,7 +56,7 @@ namespace Backend.Migrations
                     b.HasIndex("OrderNumber")
                         .IsUnique();
 
-                    b.ToTable("Orders");
+                    b.ToTable("orderDb", "orders");
                 });
 #pragma warning restore 612, 618
         }
