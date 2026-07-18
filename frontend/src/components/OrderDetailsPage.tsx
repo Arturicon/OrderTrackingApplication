@@ -1,10 +1,11 @@
-// OrderDetailsPage.tsx
+import { CheckCircle } from 'react-bootstrap-icons';
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Button, Card, Badge, Container, Row, Col, Stack } from 'react-bootstrap';
 import { ArrowLeft, Bell, BellSlash, Clock, Calendar, Hash, FileText, Tag } from 'react-bootstrap-icons';
 import { useOrderStore} from '../stores/orderStrore';
 import { useSignalR } from "../hooks/useSignalR";
+import {subscriptionStore} from "../stores/subscriptionStore"
 
 //todo добавить показатель того что мы подписаны
 
@@ -16,7 +17,8 @@ export function OrderDetailsPage() {
     const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
     const { onOrderStatusChanged, subscribeToOrder, unsubscribeFromOrder} = useSignalR();
     const currentOrder = orders.find(order => order.id === id);
-
+    const subscribedOrderIds = subscriptionStore((state) => state.subscribedOrderIds);
+    const isSubscribed = id ? subscribedOrderIds.includes(id) : false;
     // Подписка на уведомления
     useEffect(() => {
         const unsubscribe = onOrderStatusChanged((data) => {
@@ -129,12 +131,21 @@ export function OrderDetailsPage() {
                             </Stack>
                         </Col>
                         <Col xs="auto">
-                            <Badge 
-                                bg={getStatusColor(currentOrder.status)} 
-                                className="fs-6 px-3 py-2"
-                            >
-                                {getStatusLabel(currentOrder.status)}
-                            </Badge>
+                            <Stack direction="horizontal" gap={2}>
+                                {/* ✅ Индикатор подписки */}
+                                {isSubscribed && (
+                                    <Badge bg="success" className="fs-6 px-3 py-2">
+                                        <CheckCircle size={16} className="me-1" />
+                                        Подписан
+                                    </Badge>
+                                )}
+                                <Badge 
+                                    bg={getStatusColor(currentOrder.status)} 
+                                    className="fs-6 px-3 py-2"
+                                >
+                                    {getStatusLabel(currentOrder.status)}
+                                </Badge>
+                            </Stack>
                         </Col>
                     </Row>
                 </Card.Header>
@@ -208,42 +219,68 @@ export function OrderDetailsPage() {
                         </Col>
 
                         <Col lg={4}>
-                            {/* Управление подпиской */}
-                            <Card className="border-0 bg-light">
-                                <Card.Body>
-                                    <h5 className="fw-bold mb-3">
-                                        <Bell className="me-2" />
-                                        Уведомления
-                                    </h5>
+                        <Card className="border-0 bg-light">
+                            <Card.Body>
+                                <h5 className="fw-bold mb-3">
+                                    <Bell className="me-2" />
+                                    Уведомления
+                                </h5>
+                                
+                                {/* ✅ Индикатор статуса подписки */}
+                                <div className="mb-3">
+                                    <Badge 
+                                        bg={isSubscribed ? "success" : "secondary"}
+                                        className="w-100 py-2"
+                                    >
+                                        {isSubscribed ? (
+                                            <>
+                                                <CheckCircle size={16} className="me-1" />
+                                                Подписка активна
+                                            </>
+                                        ) : (
+                                            <>
+                                                <BellSlash size={16} className="me-1" />
+                                                Не подписан
+                                            </>
+                                        )}
+                                    </Badge>
+                                </div>
+                                
+                                <Stack direction="vertical" gap={2}>
+                                    <Button 
+                                        variant="primary" 
+                                        onClick={() => subscribeToOrder(id!)}
+                                        className="d-flex align-items-center justify-content-center gap-2"
+                                        disabled={isSubscribed}  // ✅ Отключаем если уже подписан
+                                    >
+                                        <Bell size={18} />
+                                        Подписаться на уведомления
+                                    </Button>
                                     
-                                    <Stack direction="vertical" gap={2}>
-                                        <Button 
-                                            variant="primary" 
-                                            onClick={() => subscribeToOrder(id)}
-                                            className="d-flex align-items-center justify-content-center gap-2" >
-                                            <Bell size={18} />
-                                            Подписаться на уведомления
-                                        </Button>
-                                        
-                                        <Button 
-                                            variant="outline-secondary" 
-                                            onClick={() => unsubscribeFromOrder(id)}
-                                            className="d-flex align-items-center justify-content-center gap-2"
-                                        >
-                                            <BellSlash size={18} />
-                                            Отписаться от уведомлений
-                                        </Button>
-                                    </Stack>
+                                    <Button 
+                                        variant="outline-secondary" 
+                                        onClick={() => unsubscribeFromOrder(id!)}
+                                        className="d-flex align-items-center justify-content-center gap-2"
+                                        disabled={!isSubscribed}  // ✅ Отключаем если не подписан
+                                    >
+                                        <BellSlash size={18} />
+                                        Отписаться от уведомлений
+                                    </Button>
+                                </Stack>
 
-                                    <hr className="my-3" />
-                                    
-                                    <div className="text-muted small">
-                                        <Tag size={14} className="me-1" />
-                                        Подписка позволяет получать обновления статуса заказа в реальном времени
-                                    </div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
+                                <hr className="my-3" />
+                                
+                                <div className="text-muted small">
+                                    <Tag size={14} className="me-1" />
+                                    {isSubscribed ? (
+                                        <>✅ Вы получаете обновления статуса в реальном времени</>
+                                    ) : (
+                                        <>🔔 Подпишитесь, чтобы получать обновления статуса заказа</>
+                                    )}
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                     </Row>
                 </Card.Body>
 

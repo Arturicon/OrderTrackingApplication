@@ -6,11 +6,12 @@ interface SubscriptionStore {
     addSubscription: (orderId: string) => void;
     removeSubscription: (orderId: string) => void;
     clearSubscriptions: () => void;
+    isSubscribed: (orderId: string) => boolean;
 }
 
 export const subscriptionStore = create<SubscriptionStore>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             subscribedOrderIds: [],
             
             addSubscription: (orderId: string) => {
@@ -24,7 +25,8 @@ export const subscriptionStore = create<SubscriptionStore>()(
                     subscribedOrderIds: state.subscribedOrderIds.filter(id => id !== orderId)
                 }));
             },
-            
+            isSubscribed: (orderId) => 
+                get().subscribedOrderIds.includes(orderId),
             clearSubscriptions: () => {
                 set({ subscribedOrderIds: [] });
             },
