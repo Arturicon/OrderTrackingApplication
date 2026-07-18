@@ -22,24 +22,6 @@ public class OrdersController : ControllerBase
     }
 
 
-    //todo delete
-    [HttpPost("[action]")]
-    public async Task<IActionResult> CreateTestOrder()
-    {
-        var order = await _orderService.CreateOrderAsync("TEST OTDER");
-        var orderDto = OrderDto.FromOrder(order);
-        return CreatedAtAction(nameof(GetOrder), new { id = orderDto.Id }, orderDto);
-    }
-    [HttpPut("[action]")]
-    public async Task<IActionResult> UpdateTestOrder([FromQuery] string number)
-    {
-        var orders = await _orderService.GetAllOrdersAsync();
-        var temp = orders.First(x => x.OrderNumber.Equals(number));
-        await _orderService.UpdateOrderStatusAsync(temp.Id, OrderStatus.delivered);
-        return Ok();
-    }
-
-
     /// <summary>
     /// Получить все заказы
     /// </summary>

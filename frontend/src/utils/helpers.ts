@@ -14,3 +14,14 @@ export const formatDate = (dateStr: string): string => {
         minute: '2-digit',
     });
 };
+
+export const API_CONFIG = {
+    // Получаем URL из переменной окружения или используем дефолтное значение
+    backendUrl: import.meta.env.BACKEND_URL || 'https://localhost:7099',
+    notifyUrl: import.meta.env.NOTIFY_URL || "https://localhost:7125",
+    endpoints: {
+        allOrders: 'api/Orders/GetAllOrders',
+        createOrder: 'api/Orders/CreateOrder',
+        orderHub: 'orderHub'
+    }
+};

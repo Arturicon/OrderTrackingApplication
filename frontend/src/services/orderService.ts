@@ -1,13 +1,12 @@
 import type {Order} from '../stores/orderStrore'
-
+import {API_CONFIG} from '../utils/helpers'
 class OrderService{
 
 
 
 async fetchCreateOrder(description:string) : Promise<Order>{
-    const host = "https://localhost:7099"; //todo get from config
         try {
-            const response = await fetch(`${host}/api/Orders/CreateOrder`, {
+            const response = await fetch(`${API_CONFIG.backendUrl}/${API_CONFIG.endpoints.createOrder}`, {
                 method:'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({description: description})
@@ -24,9 +23,6 @@ async fetchCreateOrder(description:string) : Promise<Order>{
         throw error; 
         }
     }
-
-    // async getOrderById(id:string) : Promise<Order>{
-
 }
 
 

@@ -47,7 +47,7 @@ export const useOrderStore = create<OrderStore>()(
             
             fetchOrders: async () => {
                 try {
-                    const response = await fetch(`${API_CONFIG.baseUrl}/${API_CONFIG.endpoints.allOrders}`);
+                    const response = await fetch(`${API_CONFIG.backendUrl}/${API_CONFIG.endpoints.allOrders}`);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
