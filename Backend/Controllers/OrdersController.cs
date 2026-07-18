@@ -3,6 +3,7 @@ using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using OrderTracking.Application.Converters;
+using System.Net.NetworkInformation;
 using System.Text.Json.Serialization;
 
 namespace Backend.Controllers;
@@ -109,21 +110,21 @@ public class OrdersController : ControllerBase
     }
 
     /// <summary>
-    /// Обновить статус заказа
+    /// Обновить статус заказа (для тестов)
     /// </summary>
-    [HttpPut("[action]/{id}")]
-    public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] UpdateOrderStatusDto updateStatusDto)
+    [HttpPut("[action]")]
+    public async Task<IActionResult> UpdateOrderStatus([FromQuery] Guid id, [FromQuery] OrderStatus status)
     {
-        _logger.LogInformation("Updating order status for Order ID: {OrderId} to {Status}", id, updateStatusDto.Status);
+        _logger.LogInformation("Updating order status for Order ID: {OrderId} to {Status}", id, status);
 
-        if (!Enum.IsDefined(typeof(OrderStatus), updateStatusDto.Status))
+        if (!Enum.IsDefined(typeof(OrderStatus), status))
         {
             return BadRequest("Invalid order status");
         }
 
         try
         {
-            var updatedOrder = await _orderService.UpdateOrderStatusAsync(id, updateStatusDto.Status);
+            var updatedOrder = await _orderService.UpdateOrderStatusAsync(id, status);
             return Ok(OrderDto.FromOrder(updatedOrder));
         }
         catch (KeyNotFoundException)
@@ -191,10 +192,7 @@ public class OrdersController : ControllerBase
         public string Description { get; set; } = string.Empty;
     }
 
-    public class UpdateOrderStatusDto
-    {
-        public OrderStatus Status { get; set; }
-    }
+
 
     public class UpdateOrderDescriptionDto
     {

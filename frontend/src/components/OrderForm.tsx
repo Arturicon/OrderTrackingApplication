@@ -60,12 +60,12 @@ export function OrderForm() {
     return (
         <div className="card shadow-sm mb-4">
             <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">➕ Создать новый заказ</h5>
+                <h5 className="mb-0">Создать новый заказ</h5>
             </div>
             <div className="card-body">
                 <form onSubmit={handleSubmit}>
                     <div className="row g-3 align-items-end">
-                        <div className="col-md-5">
+                        <div className="col-md-8">
                             <label htmlFor="orderDescription" className="form-label fw-semibold">
                                 Описание
                             </label>
@@ -85,7 +85,7 @@ export function OrderForm() {
                             )}
                         </div>
 
-                        <div className="col-md-4">
+                        {/* <div className="col-md-4">
                             <label htmlFor="orderStatus" className="form-label fw-semibold">
                                 Статус
                             </label>
@@ -100,9 +100,9 @@ export function OrderForm() {
                                 <option value="delivered">Доставлен</option>
                                 <option value="cancelled">Отменен</option>
                             </select>
-                        </div>
+                        </div> */}
 
-                        <div className="col-md-3">
+                        <div className="col-md-4">
                             <button type="submit" className="btn btn-primary w-100" disabled={isLoading}> 
                                 Создать
                             </button>
