@@ -1,34 +1,33 @@
 services:
-  # База данных 
   postgres:
     image: postgres:15-alpine
     container_name: postgres_db
     environment:
-      POSTGRES_USER: ${DB_USER:-myuser}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-mypassword}
-      POSTGRES_DB: ${DB_NAME:-mydatabase}
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: orderDb
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-myuser} -d ${DB_NAME:-mydatabase}"]
+      test: ["CMD-SHELL", "pg_isready -U test -d freedb"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - app-network
-
-  # RabbitMQ
+      
+      
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
     container_name: rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - "5672:5672"      # AMQP порт
-      - "15672:15672"    # Management UI
+      - "5672:5672"
+      - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
@@ -39,74 +38,26 @@ services:
     networks:
       - app-network
 
-  # Main API (ASP.NET Core с БД и логикой)
   backend:
-    build:
-      context: .
-      dockerfile: Backend/Dockerfile
-    container_name: backend
+    build: ./Backend
+    container_name: backend_container
     environment:
-      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=${DB_NAME:-mydatabase};Username=${DB_USER:-myuser};Password=${DB_PASSWORD:-mypassword}
-      - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__UserName=${RABBITMQ_USER:-guest}
-      - RabbitMQ__Password=${RABBITMQ_PASSWORD:-guest}
+      - ASPNETCORE_ENVIRONMENT=Production   
+    ports:
+      - "5000:8080"
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-    ports:
-      - "5000:80"
-      - "5001:443"
-    volumes:
-      - ./Backend:/app
     networks:
       - app-network
-
-  # Notification Service 
-  notifyservice:
-    build:
-      context: .
-      dockerfile: NotifyService/Dockerfile
-    container_name: notification_service
-    environment:
-      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
-      - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__UserName=${RABBITMQ_USER:-guest}
-      - RabbitMQ__Password=${RABBITMQ_PASSWORD:-guest}
-      - Backend__BaseUrl=http://backend:80
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      backend:
-        condition: service_started
-    ports:
-      - "5010:80"
-      - "5011:443"
-    volumes:
-      - ./NotifyService:/app
-    networks:
-      - app-network
-
-  # Frontend
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    container_name: frontend_app
-    depends_on:
-      - backend
-      - notifyservice
-    ports:
-      - "3000:80"
-    networks:
-      - app-network
-
+    restart: unless-stopped
+    
 volumes:
   postgres_data:
   rabbitmq_data:
-
+      
 networks:
   app-network:
     driver: bridge
