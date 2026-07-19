@@ -1,4 +1,4 @@
-﻿using Backend.Domain.Entities;
+﻿using Backend.Domain;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

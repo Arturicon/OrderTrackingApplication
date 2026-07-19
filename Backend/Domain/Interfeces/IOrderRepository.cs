@@ -1,6 +1,4 @@
-﻿using Backend.Domain.Entities;
-
-namespace Backend.Domain.Interfeces;
+﻿namespace Backend.Domain.Interfeces;
 
 public interface IOrderRepository
 {

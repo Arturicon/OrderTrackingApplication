@@ -1,8 +1,6 @@
 using Backend.Domain;
-using Backend.Domain.Entities;
 using Backend.Domain.Interfeces;
 using Backend.RabbitMQ;
-using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
 
 

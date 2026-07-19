@@ -1,6 +1,5 @@
-﻿using Backend.Domain.Entities;
+﻿using Backend.Domain;
 using Backend.Domain.Interfeces;
-using Microsoft.EntityFrameworkCore.Metadata;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -8,6 +7,9 @@ using System.Text.Json;
 
 namespace Backend.RabbitMQ;
 
+/// <summary>
+/// Публикатор событий в RabbitMQ.
+/// </summary>
 public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
 {
     private IConnection _connection;
@@ -17,8 +19,13 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
     private readonly string _hostName;
     private readonly int _port;
     private readonly ILogger<RabbitMQEventPublisher> _logger;
-    private readonly SemaphoreSlim _semaphoreSlim = new(1,1);
+    private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 
+    /// <summary>
+    /// Инициализирует новый экземпляр публикатора.
+    /// </summary>
+    /// <param name="configuration">Конфигурация RabbitMQ.</param>
+    /// <param name="logger">Сервис логирования.</param>
     public RabbitMQEventPublisher(
         IConfiguration configuration,
         ILogger<RabbitMQEventPublisher> logger)
@@ -30,6 +37,11 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
         _port = int.Parse(configuration["RabbitMQ:Port"] ?? "5672");
     }
 
+    /// <summary>
+    /// Устанавливает соединение с RabbitMQ.
+    /// </summary>
+    /// <param name="configuration">Конфигурация RabbitMQ.</param>
+    /// <exception cref="Exception">Выбрасывается при ошибке подключения.</exception>
     public async Task SetConnection(IConfiguration configuration)
     {
         await _semaphoreSlim.WaitAsync();
@@ -46,19 +58,16 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
             _connection = await factory.CreateConnectionAsync();
             _channel = await _connection.CreateChannelAsync();
 
-
             _channel.BasicAcksAsync += BasicAcksAsyncHandler;
             _channel.BasicNacksAsync += BasicNacksAsyncHandler;
             _channel.BasicReturnAsync += BasicReturnAsyncHandler;
 
-            // Declare exchange
             await _channel.ExchangeDeclareAsync(
                 exchange: _exchangeName,
                 type: ExchangeType.Direct,
                 durable: true,
                 autoDelete: false);
 
-            // Declare queue
             var queueName = configuration["RabbitMQ:QueueName"] ?? "order_queue";
             await _channel.QueueDeclareAsync(
                 queue: queueName,
@@ -66,7 +75,6 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
                 exclusive: false,
                 autoDelete: false);
 
-            // Bind queue to exchange
             await _channel.QueueBindAsync(
                 queue: queueName,
                 exchange: _exchangeName,
@@ -82,8 +90,12 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
         finally { _semaphoreSlim.Release(); }
     }
 
-
-
+    /// <summary>
+    /// Публикует событие об изменении статуса заказа.
+    /// </summary>
+    /// <param name="order">Заказ.</param>
+    /// <param name="oldStatus">Старый статус.</param>
+    /// <exception cref="InvalidOperationException">Выбрасывается, если канал не открыт.</exception>
     public async Task PublishOrderStatusChangedEventAsync(Order order, OrderStatus oldStatus)
     {
         if (_channel == null || _channel.IsOpen == false)
@@ -106,7 +118,7 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
 
             var properties = new BasicProperties
             {
-                Persistent = true, //чтобы сохранялось на диск
+                Persistent = true,
                 ContentType = "application/json",
                 Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
                 DeliveryMode = DeliveryModes.Persistent
@@ -131,11 +143,12 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
         }
     }
 
-
-
+    /// <summary>
+    /// Освобождает ресурсы.
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
-        if(_channel != null)
+        if (_channel != null)
         {
             await _channel.CloseAsync();
             await _channel.DisposeAsync();
@@ -143,6 +156,9 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
         _logger.LogInformation("RabbitMQ connection disposed");
     }
 
+    /// <summary>
+    /// Обрабатывает возврат сообщения.
+    /// </summary>
     private async Task BasicReturnAsyncHandler(object sender, BasicReturnEventArgs e)
     {
         var message = Encoding.UTF8.GetString(e.Body.Span);
@@ -151,15 +167,19 @@ public class RabbitMQEventPublisher : IEventPublisher, IAsyncDisposable
             e.Exchange, e.RoutingKey, e.ReplyText, message);
     }
 
+    /// <summary>
+    /// Обрабатывает отрицательное подтверждение.
+    /// </summary>
     private async Task BasicNacksAsyncHandler(object sender, BasicNackEventArgs e)
     {
         _logger.LogWarning($"Message NOT confirmed: DeliveryTag={e.DeliveryTag}, Multiple={e.Multiple}");
     }
 
+    /// <summary>
+    /// Обрабатывает положительное подтверждение.
+    /// </summary>
     private async Task BasicAcksAsyncHandler(object sender, BasicAckEventArgs e)
     {
         _logger.LogDebug($"Message confirmed: DeliveryTag={e.DeliveryTag}, Multiple={e.Multiple}");
     }
-
 }
-

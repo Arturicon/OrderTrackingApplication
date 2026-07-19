@@ -1,31 +1,38 @@
 ﻿using Backend.Domain;
-using Backend.Domain.Entities;
+using Backend.Domain.Interfeces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using OrderTracking.Application.Converters;
-using System.Net.NetworkInformation;
-using System.Text.Json.Serialization;
 
 namespace Backend.Controllers;
 
-
+/// <summary>
+/// Контроллер для управления заказами.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class OrdersController : ControllerBase
+public partial class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
     private readonly ILogger<OrdersController> _logger;
 
+    /// <summary>
+    /// Инициализирует новый экземпляр контроллера <see cref="OrdersController"/>.
+    /// </summary>
+    /// <param name="orderService">Сервис для работы с заказами.</param>
+    /// <param name="logger">Сервис логирования.</param>
+    /// <exception cref="ArgumentNullException">Выбрасывается, если orderService или logger равны null.</exception>
     public OrdersController(IOrderService orderService, ILogger<OrdersController> logger)
     {
         _orderService = orderService;
         _logger = logger;
     }
 
-
     /// <summary>
-    /// Получить все заказы
+    /// Получает список всех заказов с возможностью фильтрации по статусу.
     /// </summary>
+    /// <param name="status">Статус заказа для фильтрации. Если не указан, возвращаются все заказы.</param>
+    /// <returns>Коллекция объектов <see cref="OrderDto"/>.</returns>
+    /// <response code="200">Успешное получение списка заказов.</response>
+    /// <response code="500">Внутренняя ошибка сервера.</response>
     [HttpGet("[action]")]
     public async Task<IActionResult> GetAllOrders([FromQuery] OrderStatus? status)
     {
@@ -40,6 +47,7 @@ public class OrdersController : ControllerBase
         }
         catch(Exception ex)
         {
+            _logger.LogError(ex, "Error getting all orders with status: {Status}", status);
             return StatusCode(500, new
             {
                 Error = ex.Message,
@@ -47,12 +55,15 @@ public class OrdersController : ControllerBase
                 InnerError = ex.InnerException?.Message
             });
         }
-
     }
 
     /// <summary>
-    /// Получить заказ по ID
+    /// Получает заказ по уникальному идентификатору.
     /// </summary>
+    /// <param name="id">Идентификатор заказа (GUID).</param>
+    /// <returns>Объект <see cref="OrderDto"/>.</returns>
+    /// <response code="200">Заказ успешно найден.</response>
+    /// <response code="404">Заказ с указанным ID не найден.</response>
     [HttpGet("[action]/{id}")]
     public async Task<IActionResult> GetOrder(Guid id)
     {
@@ -65,13 +76,18 @@ public class OrdersController : ControllerBase
         }
         catch (KeyNotFoundException)
         {
+            _logger.LogWarning("Order with ID: {OrderId} not found", id);
             return NotFound($"Order with ID {id} not found");
         }
     }
 
     /// <summary>
-    /// Получить заказ по номеру заказа
+    /// Получает заказ по его номеру.
     /// </summary>
+    /// <param name="orderNumber">Уникальный номер заказа.</param>
+    /// <returns>Объект <see cref="OrderDto"/>.</returns>
+    /// <response code="200">Заказ успешно найден.</response>
+    /// <response code="404">Заказ с указанным номером не найден.</response>
     [HttpGet("[action]/{orderNumber}")]
     public async Task<IActionResult> GetOrderByNumber(string orderNumber)
     {
@@ -84,13 +100,19 @@ public class OrdersController : ControllerBase
         }
         catch (KeyNotFoundException)
         {
+            _logger.LogWarning("Order with number: {OrderNumber} not found", orderNumber);
             return NotFound($"Order with number {orderNumber} not found");
         }
     }
 
     /// <summary>
-    /// Создать новый заказ
+    /// Создает новый заказ.
     /// </summary>
+    /// <param name="createOrderDto">Данные для создания заказа.</param>
+    /// <returns>Созданный объект <see cref="OrderDto"/>.</returns>
+    /// <response code="200">Заказ успешно создан.</response>
+    /// <response code="400">Некорректные данные запроса.</response>
+    /// <exception cref="ArgumentException">Выбрасывается, если описание заказа невалидно.</exception>
     [HttpPost("[action]")]
     public async Task<ActionResult<OrderDto>> CreateOrder([FromBody] CreateOrderDto createOrderDto)
     {
@@ -105,13 +127,22 @@ public class OrdersController : ControllerBase
         }
         catch (ArgumentException ex)
         {
+            _logger.LogWarning("Validation error: {Error}", ex.Message);
             return BadRequest(ex.Message);
         }
     }
 
     /// <summary>
-    /// Обновить статус заказа (для тестов)
+    /// Обновляет статус заказа.
     /// </summary>
+    /// <param name="id">Идентификатор заказа (GUID).</param>
+    /// <param name="status">Новый статус из перечисления <see cref="OrderStatus"/>.</param>
+    /// <returns>Обновленный объект <see cref="OrderDto"/>.</returns>
+    /// <response code="200">Статус успешно обновлен.</response>
+    /// <response code="400">Недопустимый статус или нарушение бизнес-правил.</response>
+    /// <response code="404">Заказ с указанным ID не найден.</response>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если заказ не найден.</exception>
+    /// <exception cref="ArgumentException">Выбрасывается при недопустимом переходе статуса.</exception>
     [HttpPut("[action]")]
     public async Task<IActionResult> UpdateOrderStatus([FromQuery] Guid id, [FromQuery] OrderStatus status)
     {
@@ -119,6 +150,7 @@ public class OrdersController : ControllerBase
 
         if (!Enum.IsDefined(typeof(OrderStatus), status))
         {
+            _logger.LogWarning("Invalid order status value: {Status}", status);
             return BadRequest("Invalid order status");
         }
 
@@ -129,19 +161,23 @@ public class OrdersController : ControllerBase
         }
         catch (KeyNotFoundException)
         {
+            _logger.LogWarning("Order with ID: {OrderId} not found", id);
             return NotFound($"Order with ID {id} not found");
         }
         catch (ArgumentException ex)
         {
+            _logger.LogWarning("Validation error: {Error}", ex.Message);
             return BadRequest(ex.Message);
         }
     }
 
-
-
     /// <summary>
-    /// Удалить заказ
+    /// Удаляет заказ по идентификатору.
     /// </summary>
+    /// <param name="id">Идентификатор заказа (GUID).</param>
+    /// <response code="204">Заказ успешно удален.</response>
+    /// <response code="404">Заказ с указанным ID не найден.</response>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если заказ не найден.</exception>
     [HttpDelete("[action]/{id}")]
     public async Task<IActionResult> DeleteOrder(Guid id)
     {
@@ -154,48 +190,8 @@ public class OrdersController : ControllerBase
         }
         catch (KeyNotFoundException)
         {
+            _logger.LogWarning("Order with ID: {OrderId} not found", id);
             return NotFound($"Order with ID {id} not found");
         }
-    }
-
-
-
-
-    public class OrderDto
-    {
-        public Guid Id { get; set; }
-        public string OrderNumber { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-
-        [JsonConverter(typeof(OrderStatusJsonConverter))]
-        public OrderStatus Status { get; set; }
-        public string StatusName => Status.ToString(); //todo разобраться с необходимостью этого
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-
-        public static OrderDto FromOrder(Order order)
-        {
-            return new OrderDto
-            {
-                Id = order.Id,
-                OrderNumber = order.OrderNumber,
-                Description = order.Description,
-                Status = order.Status,
-                CreatedAt = order.CreatedAt,
-                UpdatedAt = order.UpdatedAt
-            };
-        }
-    }
-
-    public class CreateOrderDto
-    {
-        public string Description { get; set; } = string.Empty;
-    }
-
-
-
-    public class UpdateOrderDescriptionDto
-    {
-        public string Description { get; set; } = string.Empty;
     }
 }

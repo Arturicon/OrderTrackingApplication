@@ -1,14 +1,22 @@
-﻿using Backend.Domain.Entities;
-using Backend.Domain.Interfeces;
-
+﻿using Backend.Domain.Interfeces;
 
 namespace Backend.Domain;
+
+/// <summary>
+/// Сервис для управления заказами.
+/// </summary>
 public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IEventPublisher _eventPublisher;
     private readonly ILogger<OrderService> _logger;
 
+    /// <summary>
+    /// Инициализирует новый экземпляр сервиса <see cref="OrderService"/>.
+    /// </summary>
+    /// <param name="orderRepository">Репозиторий для доступа к данным заказов.</param>
+    /// <param name="eventPublisher">Публикатор событий для отправки уведомлений.</param>
+    /// <param name="logger">Сервис логирования.</param>
     public OrderService(
         IOrderRepository orderRepository,
         IEventPublisher eventPublisher,
@@ -19,6 +27,12 @@ public class OrderService : IOrderService
         _logger = logger;
     }
 
+    /// <summary>
+    /// Создает новый заказ.
+    /// </summary>
+    /// <param name="description">Описание заказа. Не может быть null или пустым.</param>
+    /// <returns>Созданный заказ.</returns>
+    /// <exception cref="ArgumentException">Выбрасывается, если описание пустое.</exception>
     public async Task<Order> CreateOrderAsync(string description)
     {
         _logger.LogInformation("Creating new order with description: {Description}", description);
@@ -37,6 +51,14 @@ public class OrderService : IOrderService
         return createdOrder;
     }
 
+    /// <summary>
+    /// Обновляет статус заказа.
+    /// </summary>
+    /// <param name="orderId">Идентификатор заказа.</param>
+    /// <param name="newStatus">Новый статус заказа.</param>
+    /// <returns>Обновленный заказ.</returns>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если заказ не найден.</exception>
+    /// <exception cref="InvalidOperationException">Выбрасывается, если переход статуса запрещен.</exception>
     public async Task<Order> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus)
     {
         _logger.LogInformation("Updating order status for Order ID: {OrderId} to {NewStatus}",
@@ -53,7 +75,6 @@ public class OrderService : IOrderService
         order.UpdateStatus(newStatus);
         var updatedOrder = await _orderRepository.UpdateAsync(order);
 
-        // Публикация события в RabbitMQ
         await _eventPublisher.PublishOrderStatusChangedEventAsync(order, oldStatus);
 
         _logger.LogInformation("Order status updated successfully for Order ID: {OrderId}. Old status: {OldStatus}, New status: {NewStatus}",
@@ -62,6 +83,14 @@ public class OrderService : IOrderService
         return updatedOrder;
     }
 
+    /// <summary>
+    /// Обновляет описание заказа.
+    /// </summary>
+    /// <param name="orderId">Идентификатор заказа.</param>
+    /// <param name="description">Новое описание заказа.</param>
+    /// <returns>Обновленный заказ.</returns>
+    /// <exception cref="ArgumentException">Выбрасывается, если описание пустое.</exception>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если заказ не найден.</exception>
     public async Task<Order> UpdateOrderDescriptionAsync(Guid orderId, string description)
     {
         _logger.LogInformation("Updating order description for Order ID: {OrderId}", orderId);
@@ -84,6 +113,11 @@ public class OrderService : IOrderService
         return updatedOrder;
     }
 
+    /// <summary>
+    /// Удаляет заказ.
+    /// </summary>
+    /// <param name="orderId">Идентификатор заказа.</param>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если заказ не найден.</exception>
     public async Task DeleteOrderAsync(Guid orderId)
     {
         _logger.LogInformation("Deleting order with ID: {OrderId}", orderId);
@@ -99,6 +133,12 @@ public class OrderService : IOrderService
         _logger.LogInformation("Order deleted successfully with ID: {OrderId}", orderId);
     }
 
+    /// <summary>
+    /// Получает заказ по идентификатору.
+    /// </summary>
+    /// <param name="orderId">Идентификатор заказа.</param>
+    /// <returns>Заказ.</returns>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если заказ не найден.</exception>
     public async Task<Order> GetOrderByIdAsync(Guid orderId)
     {
         _logger.LogInformation("Getting order with ID: {OrderId}", orderId);
@@ -113,6 +153,12 @@ public class OrderService : IOrderService
         return order;
     }
 
+    /// <summary>
+    /// Получает заказ по номеру.
+    /// </summary>
+    /// <param name="orderNumber">Номер заказа.</param>
+    /// <returns>Заказ.</returns>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если заказ не найден.</exception>
     public async Task<Order> GetOrderByNumberAsync(string orderNumber)
     {
         _logger.LogInformation("Getting order with number: {OrderNumber}", orderNumber);
@@ -127,6 +173,11 @@ public class OrderService : IOrderService
         return order;
     }
 
+    /// <summary>
+    /// Получает все заказы с фильтрацией по статусу.
+    /// </summary>
+    /// <param name="status">Статус для фильтрации. Если null, возвращаются все заказы.</param>
+    /// <returns>Коллекция заказов.</returns>
     public async Task<IEnumerable<Order>> GetAllOrdersAsync(OrderStatus? status = null)
     {
         _logger.LogInformation("Getting all orders");
@@ -140,6 +191,10 @@ public class OrderService : IOrderService
         return await _orderRepository.GetAllAsync();
     }
 
+    /// <summary>
+    /// Генерирует уникальный номер заказа в формате "ORD-ГГГГММДД-XXXX".
+    /// </summary>
+    /// <returns>Номер заказа.</returns>
     private string GenerateOrderNumber()
     {
         var timestamp = DateTime.UtcNow.ToString("yyyyMMdd");
@@ -148,16 +203,3 @@ public class OrderService : IOrderService
         return $"ORD-{timestamp}-{sequence}";
     }
 }
-public interface IOrderService
-{
-    Task<Order> CreateOrderAsync(string description);
-    Task<Order> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus);
-    Task<Order> UpdateOrderDescriptionAsync(Guid orderId, string description);
-    Task DeleteOrderAsync(Guid orderId);
-    Task<Order> GetOrderByIdAsync(Guid orderId);
-    Task<Order> GetOrderByNumberAsync(string orderNumber);
-    Task<IEnumerable<Order>> GetAllOrdersAsync(OrderStatus? status = null);
-}
-
-
-
