@@ -1,18 +1,24 @@
 // hooks/useSignalR.ts
 import { useEffect, useCallback, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
-import type { OrderStatusUpdate } from '../stores/orderStrore';
+import type { OrderStatusUpdate } from '../types/types.js';
 import { signalRStore } from '../stores/signalRStore';
 import { subscriptionStore } from '../stores/subscriptionStore';
 import {API_CONFIG} from '../utils/helpers';
 
-
+/**
+ * Результат хука useSignalR.
+ */
 interface UseSignalRResult {
+    /** Подписаться на обновления заказа */
     subscribeToOrder: (orderId: string) => Promise<void>;
+    /** Отписаться от обновлений заказа */
     unsubscribeFromOrder: (orderId: string) => Promise<void>;
+    /** Подписаться на события изменения статуса */
     onOrderStatusChanged: (callback: (data: OrderStatusUpdate) => void) => () => void;
+    /** Экземпляр подключения SignalR */
     connection: signalR.HubConnection | null;
-} 
+}
 
 // 🌍 Глобальный экземпляр подключения (один на всё приложение)
 let globalConnection: signalR.HubConnection | null = null;
@@ -20,6 +26,10 @@ let isConnectionStarted = false;
 let isGlobalHandlerRegistered = false;
 let isReconnectHandlerRegistered = false;
 
+/**
+ * Хук для работы с SignalR.
+ * Обеспечивает единое подключение ко всем компонентам.
+ */
 export function useSignalR(): UseSignalRResult {
     const addHandler = signalRStore((state) => state.addHandler);
     const notify = signalRStore((state) => state.notify);
@@ -249,8 +259,6 @@ export function useSignalR(): UseSignalRResult {
             console.error(`❌ [${hookId.current}] Ошибка отписки от заказа ${orderId}:`, err);
         }
     }, [removeSubscription]);
-
-
 
     return {
         subscribeToOrder,

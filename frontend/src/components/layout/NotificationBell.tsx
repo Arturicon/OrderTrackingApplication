@@ -4,6 +4,9 @@ import { Button, Badge } from 'react-bootstrap';
 import { notificationStore } from '../../stores/notificationStore';
 import { NotificationPopup } from '../notification/NotificationPopup';
 
+/**
+ * Компонент иконки-колокольчика для отображения уведомлений.
+ */
 export function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
     const targetRef = useRef<HTMLDivElement>(null);
@@ -11,10 +14,16 @@ export function NotificationBell() {
     const unreadCount = notificationStore((state) => state.unreadCount);
     const markAllAsRead = notificationStore((state) => state.markAllAsRead);
 
+    /**
+     * Переключает состояние открытия/закрытия попапа.
+     */
     const handleToggle = () => {
         setIsOpen(!isOpen);
     };
 
+    /**
+     * Закрывает попап.
+     */
     const handleClose = () => {
         setIsOpen(false);
     };

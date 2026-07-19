@@ -1,22 +1,35 @@
-import type { Notification } from '../../stores/notificationStore';
+import type { Notification } from '../../types/types';
 import { notificationStore } from '../../stores/notificationStore';
 import { Link } from 'react-router-dom';
 import { Stack, Badge } from 'react-bootstrap';
 
+/**
+ * Пропсы компонента NotificationItem.
+ */
 interface NotificationItemProps {
+    /** Уведомление для отображения */
     notification: Notification;
 }
 
+/**
+ * Компонент для отображения отдельного уведомления.
+ */
 export function NotificationItem({ notification }: NotificationItemProps) {
     const markAsRead = notificationStore((state) => state.markAsRead);
 
+    /**
+     * Обработчик клика по уведомлению.
+     * Отмечает уведомление как прочитанное.
+     */
     const handleClick = () => {
         if (!notification.isRead) {
             markAsRead(notification.id);
         }
     };
 
-
+    /**
+     * Возвращает иконку в зависимости от типа уведомления.
+     */
     const getTypeIcon = (type: string): string => {
         switch (type) {
             case 'success': return '✅';
@@ -26,6 +39,9 @@ export function NotificationItem({ notification }: NotificationItemProps) {
         }
     };
 
+    /**
+     * Возвращает относительное время (прошло с момента создания).
+     */
     const timeAgo = (date: string): string => {
         const diff = Date.now() - new Date(date).getTime();
         const minutes = Math.floor(diff / 60000);

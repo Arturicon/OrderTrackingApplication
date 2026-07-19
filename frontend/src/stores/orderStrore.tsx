@@ -1,37 +1,29 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import {API_CONFIG} from '../utils/helpers'
+import type { Order } from '../types/types.js';
 
-export interface Order {
-    id: string;
-    orderNumber: string;
-    description: string;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export interface OrderStatusUpdate {
-    orderId: string;
-    orderNumber: string;
-    oldStatus: string;
-    newStatus: string;
-    timestamp: string;
-}
-
+/**
+ * Хранилище заказов с поддержкой персистентности в localStorage.
+ */
 interface OrderStore {
+    /** Список заказов */
     orders: Order[];
+    /** Добавить новый заказ */
     addOrder: (order: Order) => void;
+    /** Загрузить заказы с сервера */
     fetchOrders: () => Promise<void>;
+    /** Получить заказ по ID */
     getCurrentOrderById: (id: string) => Order | undefined;
-    updateOrderStatus: (orderId: string, newStatus: string )=> void;
+    /** Обновить статус заказа */
+    updateOrderStatus: (orderId: string, newStatus: string) => void;
 }
-
 
 export const useOrderStore = create<OrderStore>()(
     persist(
         (set, get) => ({
             orders: [],
+            
             updateOrderStatus: (orderId: string, newStatus: string) => {
                 set((state) => ({
                     orders: state.orders.map(order => 
@@ -41,6 +33,7 @@ export const useOrderStore = create<OrderStore>()(
                     )
                 }));
             },
+            
             addOrder: (order) => set((state) => ({ 
                 orders: [order, ...state.orders] 
             })),
@@ -64,10 +57,10 @@ export const useOrderStore = create<OrderStore>()(
             },
         }),
         {
-            name: 'order-storage', // ключ в localStorage
-            storage: createJSONStorage(() => localStorage), // используем localStorage
+            name: 'order-storage',
+            storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({ 
-                orders: state.orders // сохраняем только orders
+                orders: state.orders
             }),
         }
     )

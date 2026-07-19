@@ -9,6 +9,9 @@ import {subscriptionStore} from "../stores/subscriptionStore"
 
 //todo добавить показатель того что мы подписаны
 
+/**
+ * Компонент страницы деталей заказа.
+ */
 export function OrderDetailsPage() {
     const { id } = useParams<string>();
     const navigate = useNavigate();
@@ -19,6 +22,7 @@ export function OrderDetailsPage() {
     const currentOrder = orders.find(order => order.id === id);
     const subscribedOrderIds = subscriptionStore((state) => state.subscribedOrderIds);
     const isSubscribed = id ? subscribedOrderIds.includes(id) : false;
+    
     // Подписка на уведомления
     useEffect(() => {
         const unsubscribe = onOrderStatusChanged((data) => {
@@ -29,7 +33,9 @@ export function OrderDetailsPage() {
         return unsubscribe;
     }, [onOrderStatusChanged, updateOrderStatus]);
 
-    // Форматирование даты
+    /**
+     * Форматирует дату в локализованный формат.
+     */
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('ru-RU', {
@@ -42,7 +48,9 @@ export function OrderDetailsPage() {
         }).format(date);
     };
 
-    // Получение цвета статуса
+    /**
+     * Возвращает цвет для статуса заказа.
+     */
     const getStatusColor = (status: string): string => {
         const colors: Record<string, string> = {
             'Pending': 'warning',
@@ -58,7 +66,9 @@ export function OrderDetailsPage() {
         return colors[status] || 'secondary';
     };
 
-    // Получение статуса на русском
+    /**
+     * Возвращает русское название статуса.
+     */
     const getStatusLabel = (status: string): string => {
         const labels: Record<string, string> = {
             'Pending': 'Ожидает',
@@ -219,68 +229,68 @@ export function OrderDetailsPage() {
                         </Col>
 
                         <Col lg={4}>
-                        <Card className="border-0 bg-light">
-                            <Card.Body>
-                                <h5 className="fw-bold mb-3">
-                                    <Bell className="me-2" />
-                                    Уведомления
-                                </h5>
-                                
-                                {/* ✅ Индикатор статуса подписки */}
-                                <div className="mb-3">
-                                    <Badge 
-                                        bg={isSubscribed ? "success" : "secondary"}
-                                        className="w-100 py-2"
-                                    >
-                                        {isSubscribed ? (
-                                            <>
-                                                <CheckCircle size={16} className="me-1" />
-                                                Подписка активна
-                                            </>
-                                        ) : (
-                                            <>
-                                                <BellSlash size={16} className="me-1" />
-                                                Не подписан
-                                            </>
-                                        )}
-                                    </Badge>
-                                </div>
-                                
-                                <Stack direction="vertical" gap={2}>
-                                    <Button 
-                                        variant="primary" 
-                                        onClick={() => subscribeToOrder(id!)}
-                                        className="d-flex align-items-center justify-content-center gap-2"
-                                        disabled={isSubscribed}  // ✅ Отключаем если уже подписан
-                                    >
-                                        <Bell size={18} />
-                                        Подписаться на уведомления
-                                    </Button>
+                            <Card className="border-0 bg-light">
+                                <Card.Body>
+                                    <h5 className="fw-bold mb-3">
+                                        <Bell className="me-2" />
+                                        Уведомления
+                                    </h5>
                                     
-                                    <Button 
-                                        variant="outline-secondary" 
-                                        onClick={() => unsubscribeFromOrder(id!)}
-                                        className="d-flex align-items-center justify-content-center gap-2"
-                                        disabled={!isSubscribed}  // ✅ Отключаем если не подписан
-                                    >
-                                        <BellSlash size={18} />
-                                        Отписаться от уведомлений
-                                    </Button>
-                                </Stack>
+                                    {/* ✅ Индикатор статуса подписки */}
+                                    <div className="mb-3">
+                                        <Badge 
+                                            bg={isSubscribed ? "success" : "secondary"}
+                                            className="w-100 py-2"
+                                        >
+                                            {isSubscribed ? (
+                                                <>
+                                                    <CheckCircle size={16} className="me-1" />
+                                                    Подписка активна
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <BellSlash size={16} className="me-1" />
+                                                    Не подписан
+                                                </>
+                                            )}
+                                        </Badge>
+                                    </div>
+                                    
+                                    <Stack direction="vertical" gap={2}>
+                                        <Button 
+                                            variant="primary" 
+                                            onClick={() => subscribeToOrder(id!)}
+                                            className="d-flex align-items-center justify-content-center gap-2"
+                                            disabled={isSubscribed}
+                                        >
+                                            <Bell size={18} />
+                                            Подписаться на уведомления
+                                        </Button>
+                                        
+                                        <Button 
+                                            variant="outline-secondary" 
+                                            onClick={() => unsubscribeFromOrder(id!)}
+                                            className="d-flex align-items-center justify-content-center gap-2"
+                                            disabled={!isSubscribed}
+                                        >
+                                            <BellSlash size={18} />
+                                            Отписаться от уведомлений
+                                        </Button>
+                                    </Stack>
 
-                                <hr className="my-3" />
-                                
-                                <div className="text-muted small">
-                                    <Tag size={14} className="me-1" />
-                                    {isSubscribed ? (
-                                        <>✅ Вы получаете обновления статуса в реальном времени</>
-                                    ) : (
-                                        <>🔔 Подпишитесь, чтобы получать обновления статуса заказа</>
-                                    )}
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
+                                    <hr className="my-3" />
+                                    
+                                    <div className="text-muted small">
+                                        <Tag size={14} className="me-1" />
+                                        {isSubscribed ? (
+                                            <>✅ Вы получаете обновления статуса в реальном времени</>
+                                        ) : (
+                                            <>🔔 Подпишитесь, чтобы получать обновления статуса заказа</>
+                                        )}
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
                     </Row>
                 </Card.Body>
 

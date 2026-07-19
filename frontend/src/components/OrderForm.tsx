@@ -4,14 +4,21 @@ import { useSignalR } from "../hooks/useSignalR";
 import { notificationStore } from '../stores/notificationStore';
 import {useCreateOrder} from '../hooks/useCreateOrder.js';
 
+/**
+ * Компонент формы для создания нового заказа.
+ */
 export function OrderForm() {
     const addOrder = useOrderStore((state) => state.addOrder);
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState<string>('created');
+    // const [status, setStatus] = useState<string>('created');
     const [errors, setErrors] = useState<{ description?: string }>({});
     const {subscribeToOrder} = useSignalR();
     const { createOrder, isLoading, error, reset } = useCreateOrder();
     const addNotification = notificationStore((state) => state.addNotification);
+
+    /**
+     * Обработчик отправки формы.
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -34,7 +41,7 @@ export function OrderForm() {
         if (newOrder) {
             addOrder(newOrder);
             setDescription('');
-            setStatus('created');
+            // setStatus('created');
             addNotification({
                 orderId: newOrder.id,
                 orderNumber: newOrder.orderNumber,
@@ -44,7 +51,6 @@ export function OrderForm() {
                 link: `/order/${newOrder.id}`,
             });
             subscribeToOrder(newOrder.id);
-
         } else {
             setErrors({ description: error || 'Ошибка создания' });
             addNotification({
@@ -103,7 +109,7 @@ export function OrderForm() {
                         </div> */}
 
                         <div className="col-md-4">
-                            <button type="submit" className="btn btn-primary w-100" disabled={isLoading}> 
+                            <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
                                 Создать
                             </button>
                         </div>

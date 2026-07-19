@@ -2,11 +2,19 @@ import { Card, Button, Stack } from 'react-bootstrap';
 import { notificationStore } from '../../stores/notificationStore';
 import { NotificationItem } from './NotificationItem';
 
+/**
+ * Пропсы компонента NotificationPopup.
+ */
 interface NotificationPopupProps {
+    /** Функция закрытия поп-апа */
     onClose: () => void;
+    /** Функция отметки всех как прочитанных */
     onMarkAllRead: () => void;
 }
 
+/**
+ * Компонент всплывающего окна со списком уведомлений.
+ */
 export function NotificationPopup({ onClose, onMarkAllRead }: NotificationPopupProps) {
     const notifications = notificationStore((state) => state.notifications);
     const clearAll = notificationStore((state) => state.clearAll);

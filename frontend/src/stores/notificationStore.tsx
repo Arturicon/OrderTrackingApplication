@@ -1,29 +1,29 @@
-// stores/notificationStore.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import type { Notification } from '../types/types.js';
 
-export interface Notification {
-    id: string;
-    orderId: string;
-    orderNumber: string;
-    title: string;
-    message: string;
-    type: 'info' | 'success' | 'warning' | 'error';
-    isRead: boolean;
-    createdAt: string;
-    link?: string;
-}
-
+/**
+ * Хранилище уведомлений с персистентностью в localStorage.
+ */
 interface NotificationStore {
-    notifications: Notification[]; //todo должны храниться где-то на сервере?
+    /** Список уведомлений */
+    notifications: Notification[];
+    /** Количество непрочитанных уведомлений */
     unreadCount: number;
     
+    /** Добавить новое уведомление */
     addNotification: (notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>) => void;
+    /** Отметить уведомление как прочитанное */
     markAsRead: (id: string) => void;
+    /** Отметить все уведомления как прочитанные */
     markAllAsRead: () => void;
+    /** Удалить уведомление */
     removeNotification: (id: string) => void;
+    /** Очистить все уведомления */
     clearAll: () => void;
+    /** Получить количество непрочитанных */
     getUnreadCount: () => number;
+    /** Получить все уведомления */
     getNotifications: () => Notification[];
 }
 

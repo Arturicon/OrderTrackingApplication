@@ -1,14 +1,24 @@
 import { useState } from 'react';
 import { orderService } from '../services/orderService.js';
-import type { Order } from '../stores/orderStrore.js';
+import type { Order } from '../types/types.js';
 
+/**
+ * Результат хука useCreateOrder.
+ */
 interface UseCreateOrderResult {
+    /** Создать новый заказ */
     createOrder: (description: string) => Promise<Order | null>;
+    /** Флаг загрузки */
     isLoading: boolean;
+    /** Сообщение об ошибке */
     error: string | null;
+    /** Сбросить состояние */
     reset: () => void;
 }
 
+/**
+ * Хук для создания нового заказа.
+ */
 export function useCreateOrder(): UseCreateOrderResult {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -18,7 +28,7 @@ export function useCreateOrder(): UseCreateOrderResult {
         setError(null);
 
         try {
-            const newOrder = await orderService.fetchCreateOrder(description.trim());            
+            const newOrder = await orderService.fetchCreateOrder(description.trim());
             return newOrder;
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Ошибка создания';

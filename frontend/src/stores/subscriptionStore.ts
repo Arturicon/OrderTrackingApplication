@@ -1,11 +1,21 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+/**
+ * Состояние подписок на заказы.
+ * Хранит ID заказов, на которые подписан пользователь.
+ * Данные сохраняются в sessionStorage.
+ */
 interface SubscriptionStore {
+    /** Массив ID заказов, на которые подписан пользователь */
     subscribedOrderIds: string[];
+    /** Добавить подписку на заказ */
     addSubscription: (orderId: string) => void;
+    /** Удалить подписку на заказ */
     removeSubscription: (orderId: string) => void;
+    /** Очистить все подписки */
     clearSubscriptions: () => void;
+    /** Проверить, подписан ли пользователь на заказ */
     isSubscribed: (orderId: string) => boolean;
 }
 

@@ -1,11 +1,17 @@
 import { create } from 'zustand';
-import type { OrderStatusUpdate } from './orderStrore';
+import type { OrderStatusUpdate } from '../types/types.js';
 
+/**
+ * Хранилище для управления обработчиками событий SignalR.
+ * Реализует паттерн Pub/Sub для обновлений статуса заказов.
+ */
 interface SignalRStore {
+    /** Массив зарегистрированных обработчиков */
     handlers: ((data: OrderStatusUpdate) => void)[];
+    /** Добавить обработчик и вернуть функцию для его удаления */
     addHandler: (handler: (data: OrderStatusUpdate) => void) => () => void;
+    /** Вызвать все обработчики с новыми данными */
     notify: (data: OrderStatusUpdate) => void;
-
 }
 
 export const signalRStore = create<SignalRStore>((set, get) => ({
@@ -23,7 +29,6 @@ export const signalRStore = create<SignalRStore>((set, get) => ({
         };
     },
 
-
     notify: (data: OrderStatusUpdate) => {
         get().handlers.forEach(handler => {
             try {
@@ -33,6 +38,4 @@ export const signalRStore = create<SignalRStore>((set, get) => ({
             }
         });
     }
-
-    
 }));
