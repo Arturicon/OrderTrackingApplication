@@ -66,7 +66,7 @@ export function OrderForm() {
     return (
         <div className="card shadow-sm mb-4">
             <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">Создать новый заказ</h5>
+                <h5 className="mb-0">Новый заказ</h5>
             </div>
             <div className="card-body">
                 <form onSubmit={handleSubmit}>

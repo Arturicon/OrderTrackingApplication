@@ -26,3 +26,10 @@ export interface Notification {
     createdAt: string;
     link?: string;
 }
+
+export const statusRuss: Record<string, string> = {
+    'created': 'Создан',
+    'shipped': 'Отправлен',
+    'delivered': 'Доставлен',
+    'cancelled': 'Отменён',
+};

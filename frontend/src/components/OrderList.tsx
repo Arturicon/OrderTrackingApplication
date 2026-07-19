@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import {useOrderStore} from '../stores/orderStrore'
 import { Link } from 'react-router';
+import {statusRuss} from '../types/types'
 
 /**
  * Компонент для отображения списка заказов.
@@ -35,7 +36,7 @@ export function OrderList() {
                   <span>{order.description}</span>
                 </td>
                 <td>
-                  <span>{order.status}</span>
+                  <span>{statusRuss[order.status]}</span>
                 </td>
                 <td>
                   <Link to={`/order/${order.id}`}>Перейти</Link>

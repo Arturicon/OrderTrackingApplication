@@ -6,6 +6,7 @@ import { ArrowLeft, Bell, BellSlash, Clock, Calendar, Hash, FileText, Tag } from
 import { useOrderStore} from '../stores/orderStrore';
 import { useSignalR } from "../hooks/useSignalR";
 import {subscriptionStore} from "../stores/subscriptionStore"
+import {statusRuss} from '../types/types'
 
 //todo добавить показатель того что мы подписаны
 
@@ -153,7 +154,7 @@ export function OrderDetailsPage() {
                                     bg={getStatusColor(currentOrder.status)} 
                                     className="fs-6 px-3 py-2"
                                 >
-                                    {getStatusLabel(currentOrder.status)}
+                                    {getStatusLabel(statusRuss[currentOrder.status])}
                                 </Badge>
                             </Stack>
                         </Col>
@@ -184,7 +185,7 @@ export function OrderDetailsPage() {
                                             <div className="mb-3">
                                                 <small className="text-muted d-block">Статус</small>
                                                 <Badge bg={getStatusColor(currentOrder.status)}>
-                                                    {getStatusLabel(currentOrder.status)}
+                                                    {getStatusLabel(statusRuss[currentOrder.status])}
                                                 </Badge>
                                             </div>
                                         </Col>

@@ -8,7 +8,7 @@ export function Header() {
         <Navbar bg="white" className="border-bottom shadow-sm" sticky="top">
             <Container>
                 <Navbar.Brand as={Link} to="/" className="fw-bold">
-                    📦 Order System
+                    📦 Система отслеживания заказов
                 </Navbar.Brand>
                 <Navbar.Collapse className="justify-content-end">
                     <Stack direction="horizontal" gap={3}>
