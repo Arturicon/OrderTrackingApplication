@@ -2,6 +2,10 @@ using Backend.Domain;
 using Backend.Domain.Interfeces;
 using Backend.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 
 
@@ -11,14 +15,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+AddOpenTelemetry(builder);
 
 // Database
 builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repositories
-builder.Services.AddScoped<IOrderRepository, OrderRepository>(); //todo
-//builder.Services.AddScoped<IOrderRepository, OrderTestRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 // RabbitMQ
@@ -58,3 +62,28 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+static void AddOpenTelemetry(WebApplicationBuilder builder)
+{
+    // 1. Настройка ресурса (service.name)
+    var serviceName = "my-awesome-service";
+    var serviceVersion = "1.0.0";
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource
+            .AddService(serviceName: serviceName, serviceVersion: serviceVersion))
+        // 2. Настройка Tracing
+        .WithTracing(tracing => tracing
+            //.AddAspNetCoreInstrumentation() // Сбор ASP.NET Core трейсов
+                                            //.AddHttpClientInstrumentation() // Для сбора трейсов исходящих HTTP-запросов
+                                            // .AddSqlClientInstrumentation() // Для сбора трейсов SQL-запросов
+            .AddConsoleExporter()) // Экспорт в консоль
+                                   // 3. Настройка Metrics
+        .WithMetrics(metrics => metrics
+            .AddAspNetCoreInstrumentation() // Сбор ASP.NET Core метрик
+            .AddConsoleExporter()); // Экспорт в консоль
+
+
+    // 4. Настройка Logs (отдельно от IServiceCollection)
+    builder.Logging.AddOpenTelemetry(logging => logging
+        .AddConsoleExporter());
+}

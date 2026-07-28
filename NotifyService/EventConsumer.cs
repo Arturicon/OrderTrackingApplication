@@ -53,11 +53,29 @@ public class EventConsumer : BackgroundService
         type: ExchangeType.Direct,
         durable: true,
         autoDelete: false);
+
+            await channel.QueueDeclareAsync(
+    queue: "dead_letter_queue",
+    durable: true,
+    exclusive: false,
+    autoDelete: false
+);
+
+            // 2. Создаем основную очередь с DLX
+            var arguments = new Dictionary<string, object?>
+{
+    { "x-queue-type", "quorum" },
+    { "x-dead-letter-exchange", "" }, // Пустая строка = default exchange
+    { "x-dead-letter-routing-key", "dead_letter_queue" } // Куда отправлять
+};
+
+
             await channel.QueueDeclareAsync(
                 queue: _queueName,
                 durable: true,
                 exclusive: false,
-                autoDelete: false);
+                autoDelete: false,
+                arguments: arguments);
 
             // Bind queue to exchange
             await channel.QueueBindAsync(
@@ -93,11 +111,11 @@ public class EventConsumer : BackgroundService
             }
             var routingKey = ea.RoutingKey;
             Console.WriteLine($" [x] Received '{routingKey}':'{message}'");
-            await channel.BasicAckAsync(ea.DeliveryTag, false);
-        }
+            await channel.BasicAckAsync(ea.DeliveryTag, false); 
+            }
         catch
         {
-            await channel.BasicNackAsync(ea.DeliveryTag, false, true);
+            await channel.BasicNackAsync(ea.DeliveryTag, false, false);
         }
     };
 
