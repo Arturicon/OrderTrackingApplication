@@ -1,3 +1,11 @@
+СТЕК:
+Backend (C# / .NET Core): C#, ASP.NET Core, Entity Framework Core, NUnit, Moq
+База данных: PostgreSQL
+Брокер сообщений: RabbitMQ
+Реалтайм: SignalR
+Frontend (TypeScript / React): TypeScript, React, Zustand
+Связь и интеграция: REST API, WebSockets (SignalR), Очереди сообщений (RabbitMQ)
+
 ЗАПУСК:
 1. Скачайте файлы проекта на компьютер.
 2. Включите Docker.
