@@ -1,10 +1,10 @@
 СТЕК:
-Backend (C# / .NET Core): C#, ASP.NET Core, Entity Framework Core, NUnit, Moq
-База данных: PostgreSQL
-Брокер сообщений: RabbitMQ
-Реалтайм: SignalR
-Frontend (TypeScript / React): TypeScript, React, Zustand
-Связь и интеграция: REST API, WebSockets (SignalR), Очереди сообщений (RabbitMQ)
+1. Backend (C# / .NET Core): C#, ASP.NET Core, Entity Framework Core, NUnit, Moq
+2. База данных: PostgreSQL
+3. Брокер сообщений: RabbitMQ
+4. Реалтайм: SignalR
+5. Frontend (TypeScript / React): TypeScript, React, Zustand
+6. Связь и интеграция: REST API, WebSockets (SignalR), Очереди сообщений (RabbitMQ)
 
 ЗАПУСК:
 1. Скачайте файлы проекта на компьютер.
