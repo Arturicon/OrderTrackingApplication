@@ -7,6 +7,8 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
 
 //TODO реализовать Outbox
 
@@ -34,6 +36,19 @@ builder.Services.AddHostedService<RabbitMQHostedService>();
 // Logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
+builder.Host.UseSerilog((context, config) =>
+{
+    config.ReadFrom.Configuration(context.Configuration) // Читаем настройки из appsettings.json
+          .Enrich.FromLogContext() // Обогащает логи контекстной информацией
+          .WriteTo.Console() // Дублируем в консоль для разработки
+          .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(
+              new Uri(builder.Configuration["ElasticSearch:Url"])) // URL Elasticsearch из конфигурации
+          {
+              IndexFormat = $"{builder.Configuration["ElasticSearch:Index"]}{DateTime.UtcNow:yyyy.MM.dd}", // Формат индекса, например "myapp-logs-2026.08.28"
+              AutoRegisterTemplate = true, // Автоматически создает шаблон индекса в Elasticsearch
+              // CustomFormatter = new EcsTextFormatter() // Опционально: формат ECS
+          });
+});
 
 // CORS
 var corsOrigins = Environment.GetEnvironmentVariable("CORS_ORIGINS")
