@@ -2,11 +2,13 @@ using Backend.Domain;
 using Backend.Domain.Interfeces;
 using Backend.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
+//TODO реализовать Outbox
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,7 +51,7 @@ builder.Services.AddCors(opts =>
 });
 
 var app = builder.Build();
-
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
@@ -65,25 +67,27 @@ app.Run();
 
 static void AddOpenTelemetry(WebApplicationBuilder builder)
 {
-    // 1. Настройка ресурса (service.name)
     var serviceName = "my-awesome-service";
     var serviceVersion = "1.0.0";
+
     builder.Services.AddOpenTelemetry()
         .ConfigureResource(resource => resource
             .AddService(serviceName: serviceName, serviceVersion: serviceVersion))
-        // 2. Настройка Tracing
         .WithTracing(tracing => tracing
-            //.AddAspNetCoreInstrumentation() // Сбор ASP.NET Core трейсов
-                                            //.AddHttpClientInstrumentation() // Для сбора трейсов исходящих HTTP-запросов
-                                            // .AddSqlClientInstrumentation() // Для сбора трейсов SQL-запросов
-            .AddConsoleExporter()) // Экспорт в консоль
-                                   // 3. Настройка Metrics
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            //.AddSqlClientInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddRabbitMQInstrumentation()
+            .AddOtlpExporter(options =>            
+            {
+                options.Endpoint = new Uri("http://localhost:4317"); // gRPC эндпоинт Jaeger
+                                                                     // Альтернатива: options.Endpoint = new Uri("http://localhost:4318/v1/traces");
+            }))
         .WithMetrics(metrics => metrics
-            .AddAspNetCoreInstrumentation() // Сбор ASP.NET Core метрик
-            .AddConsoleExporter()); // Экспорт в консоль
+            .AddAspNetCoreInstrumentation()
+            .AddPrometheusExporter()); // <--- ЭТО ГЛАВНОЕ
 
-
-    // 4. Настройка Logs (отдельно от IServiceCollection)
     builder.Logging.AddOpenTelemetry(logging => logging
         .AddConsoleExporter());
 }

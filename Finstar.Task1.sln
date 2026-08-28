@@ -13,6 +13,8 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{EEB82FEA-7880-4986-A344-2D295A36802A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientsMock", "..\ClientsMock\ClientsMock.csproj", "{11E4F39D-E013-4F85-9487-375E7F21B63E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{EEB82FEA-7880-4986-A344-2D295A36802A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEB82FEA-7880-4986-A344-2D295A36802A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEB82FEA-7880-4986-A344-2D295A36802A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11E4F39D-E013-4F85-9487-375E7F21B63E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11E4F39D-E013-4F85-9487-375E7F21B63E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11E4F39D-E013-4F85-9487-375E7F21B63E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11E4F39D-E013-4F85-9487-375E7F21B63E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

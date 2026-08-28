@@ -44,21 +44,22 @@ public class EventConsumer : BackgroundService
             RequestedHeartbeat = TimeSpan.FromSeconds(30),
         };
         var connection = await factory.CreateConnectionAsync(stoppingToken);
-        var channel = await connection.CreateChannelAsync();
+        var channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
         try
         {
-
-            await channel.ExchangeDeclareAsync(
+            await channel.ExchangeDeclareAsync(          
         exchange: exchangeName,
         type: ExchangeType.Direct,
         durable: true,
-        autoDelete: false);
+        autoDelete: false,
+        cancellationToken: stoppingToken);
 
             await channel.QueueDeclareAsync(
     queue: "dead_letter_queue",
     durable: true,
     exclusive: false,
-    autoDelete: false
+    autoDelete: false,
+    cancellationToken: stoppingToken
 );
 
             // 2. Создаем основную очередь с DLX
@@ -75,22 +76,24 @@ public class EventConsumer : BackgroundService
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
-                arguments: arguments);
+                arguments: arguments,
+                cancellationToken: stoppingToken);
 
             // Bind queue to exchange
             await channel.QueueBindAsync(
                 queue: _queueName,
                 exchange: exchangeName,
-                routingKey: routingKey);
+                routingKey: routingKey,
+                cancellationToken: stoppingToken);
 
             await StartConsumingAsync(channel, stoppingToken);
             return channel;
         }
         finally
         {
-            await channel?.CloseAsync();
-            await connection?.CloseAsync();
-            channel?.Dispose();
+            await channel.CloseAsync(stoppingToken);
+            await connection.CloseAsync(stoppingToken);
+            channel.Dispose();
             connection?.Dispose();
         }
     }
@@ -111,7 +114,7 @@ public class EventConsumer : BackgroundService
             }
             var routingKey = ea.RoutingKey;
             Console.WriteLine($" [x] Received '{routingKey}':'{message}'");
-            await channel.BasicAckAsync(ea.DeliveryTag, false); 
+            await channel.BasicAckAsync(ea.DeliveryTag, false);
             }
         catch
         {
